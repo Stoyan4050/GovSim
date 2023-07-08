@@ -26,6 +26,6 @@ class Universe:
   def tokens_amount(self):
     return self.tokens_amount
   
-    def get_token_value(self):
-      return self.wealth / self.tokens_amount
+  def get_token_value(self):
+    return self.wealth / self.tokens_amount
     
