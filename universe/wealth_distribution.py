@@ -12,11 +12,11 @@ class WealthDistribution:
         else:
             raise Exception("Invalid wealth distribution method")
 
-    #TODO: Implement uniform distribution
+    # TODO: Implement uniform distribution
     def get_uniform_distribution(self):
         return self.wealth / self.participants
     
-    #TODO: Implement normal distribution
+    # TODO: Implement normal distribution
     def get_normal_distribution(self):
         return self.wealth / self.participants
     
