@@ -6,7 +6,7 @@ from voting_decision import VotingDecision
 VOTING_INCENTIVE_THRESHOLD = 0.5
 
 # Voting simulation class
-# Candidates: list of candidates, for voters to select the preferred candidate
+# Candidates: list of candidates with wights, for voters to select the preferred candidate
 class Voting:
     def __init__(self, candidates, voters, voting_mechanism):
         self.candidates = candidates
@@ -52,7 +52,15 @@ class Voting:
         print(voting_results[1][0] + ": " + str(voting_results[1][1]))
         print("Winner: ", results)
         return results
-    
+
+# candidates list of 2 options
+# each perferences is lift of 2 values indication the preference
+class Proposal:
+    def __init__(self, candidates, C_preferences, I_preferences, M_preferences):
+        self.candidates = candidates
+        self.C_preferences = C_preferences
+        self.I_preferences = I_preferences
+        self.M_preferences = M_preferences
         
 
         

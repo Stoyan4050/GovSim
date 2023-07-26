@@ -2,7 +2,7 @@ import numpy as np
 
 # Generate a voting decision
 class VotingDecision:
-    def __init__(self, voter, candidates):
+    def __init__(self, voter, proposals):
         self.voter = voter
         self.candidates = candidates
 
@@ -10,20 +10,24 @@ class VotingDecision:
     # TODO: Implement more complex voting decision
     def generate_voting_decision(self):
 
-        if self.voter.deincentive_decision == "random_informed_vote":
-            return random_informed_vote(self.candidates, self.voter)
+        if self.voter.incentive_decision == "best_interest":
+            return best_interest_vote(self.proposals, self.voter)
     
 
 #constants
-RANDOM_INFORMED  = 0.6
+#RANDOM_INFORMED  = 0.6
 
-def random_informed_vote(candidates, voter):
+def best_interest_vote(proposals, voter):
     
-    # We assume the first option in the candidate list is the optimal one
-    probabilities = [RANDOM_INFORMED, 1 - RANDOM_INFORMED]
+    if voter.type == "C":
+        chosen_option = proposals.candidates[np.argmax(proposals.C_preferences)]
+    elif voter.type == "I":
+        chosen_option = proposals.candidates[np.argmax(proposals.I_preferences)]
+    elif voter.type == "R":
+        chosen_option = proposals.candidates[np.argmax(proposals.R_preferences)]
+    else:
+        raise Exception("Invalid voter type")
 
-    # Simulate the selection process
-    chosen_option = np.random.choice(candidates, p=probabilities)
-
+    print("Voter type: ", voter.type, " Chosen option: ", chosen_option)
     return chosen_option
 
