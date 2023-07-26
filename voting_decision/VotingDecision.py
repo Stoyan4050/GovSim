@@ -4,8 +4,7 @@ import numpy as np
 class VotingDecision:
     def __init__(self, voter, proposals):
         self.voter = voter
-        self.candidates = candidates
-
+        self.proposals = proposals
     # Returns the voting decision of voter
     # TODO: Implement more complex voting decision
     def generate_voting_decision(self):

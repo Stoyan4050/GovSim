@@ -1,5 +1,5 @@
 import numpy as np
-from voting_mechanisms import majority_vote
+from voting.voting_mechanisms import majority_vote
 from voting_decision import VotingDecision
 
 # constants:

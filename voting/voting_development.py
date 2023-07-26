@@ -1,7 +1,5 @@
-from Voting import Proposal
+from voting.Voting import Proposal
 import random
-
-
 
 # num_proposals: number of proposals
 # distrib_per_group: tuple of 3 values indicating the distribution of the proposals per group
@@ -9,9 +7,9 @@ import random
 def define_proposals(num_proposals, distrib_per_group, preference_methodology):
     all_proposals = []
     
-    proposals_benefit_group_C = num_proposals * distrib_per_group[2]
-    proposals_benefit_group_I = num_proposals * distrib_per_group[1]
-    proposals_benefit_group_M = num_proposals * distrib_per_group[0]
+    proposals_benefit_group_C = int(num_proposals * distrib_per_group[2])
+    proposals_benefit_group_I = int(num_proposals * distrib_per_group[1])
+    proposals_benefit_group_M = int(num_proposals * distrib_per_group[0])
     
     for i in range(proposals_benefit_group_C):
         C_preferences, I_preferences, M_preferences = binary_preferences("C")

@@ -1,4 +1,4 @@
-import Universe as un
+from universe import Universe as un
 from nodes import Node
 # provide initial settings
 def build_universe():
@@ -39,3 +39,4 @@ def get_network_participants(tokens_amount, wealth_dis_method):
         participants.append(participant)
     
     return participants
+
