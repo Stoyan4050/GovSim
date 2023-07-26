@@ -20,3 +20,5 @@ class WealthDistribution:
     def get_normal_distribution(self):
         return self.wealth / self.participants
     
+    # TODO: Heavy tail distribution
+    
