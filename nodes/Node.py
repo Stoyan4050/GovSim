@@ -8,5 +8,5 @@ class Node:
         self.reputation = reputation
         self.incentive_decision = incentive_decision
     
-    def get_voting_incentive(self):   
-        return Incentive(self).get_voting_incentive()
+    def get_voting_incentive(self):
+        return Incentive.Incentive(self).get_voting_incentive()

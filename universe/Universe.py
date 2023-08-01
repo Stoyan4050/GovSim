@@ -1,14 +1,15 @@
-import wealth_distribution as wd
+#import wealth_distribution as wd
 
 # Universe Class
 
 class Universe:
-  def __init__(self, participants, avg_voting_rate, wealth, tokens_amount, wealth_dis_method):
+  def __init__(self, participants, avg_voting_rate, wealth, tokens_amount, wealth_dis_method, condition):
     self.participants = participants
     self.avg_voting_rate = avg_voting_rate
     self.wealth = wealth
     self.tokens_amount = tokens_amount
     self.wealth_dis_method = wealth_dis_method
+    self.condition = condition
 
   # Returns the wealth distribution of the universe, tokens per participant
   def get_wealth_distribtuion_universe(self):

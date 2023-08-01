@@ -1,7 +1,7 @@
 from collections import Counter
 
 # Compute Majority Vote decision  
-def majority_vote(votes):
+def majority_vote(proposal, votes):
     # Count the votes per candidate
     vote_count = Counter(votes)
     # Decision based on the votes
@@ -14,4 +14,9 @@ def majority_vote(votes):
 
     # Get the majority vote
     majority_vote = decision[0][0]
+    if len(decision) == 1:
+        if decision[0][0] == "Y":
+            decision.append(("N", 0))
+        elif decision[0][0] == "N":
+            decision.append(("Y", 0))
     return majority_vote, decision

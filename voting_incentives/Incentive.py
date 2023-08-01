@@ -12,6 +12,8 @@ class Incentive:
             return self.wealth_incentive()
         elif self.incentive_mechanism == "reputation":
             return self.reputation_incentive()
+        elif self.incentive_mechanism == "constant":
+            return 1
         else:
             Exception("Incentive mechanism not found")
         
