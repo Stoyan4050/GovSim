@@ -1,41 +1,55 @@
 from universe import Universe as un
 from nodes import Node
+import numpy as np
+
 # provide initial settings
 def build_universe():
     
     avg_voting_rate=0.5
     wealth=0
-    tokens_amount=10000
+    initial_token_amount = 1000
+    tokens_amount = 10000
     wealth_dis_method="normal"
-    participants = get_network_participants(tokens_amount, wealth_dis_method)
+    participants = get_network_participants(initial_token_amount, wealth_dis_method)
     universe = un.Universe(participants=participants, avg_voting_rate=avg_voting_rate, 
                            wealth=wealth, tokens_amount=tokens_amount, wealth_dis_method=wealth_dis_method, condition=[0, 0, 0])
     return universe
 
 # add initial number of network participants
-def get_network_participants(tokens_amount, wealth_dis_method):
-    initial_n_type_M = 26
-    initial_n_type_I = 16
-    initial_n_type_C = 297
+def get_network_participants(tokens_amount_initial, wealth_dis_method):
+    
+    initial_n_type_OC = 15
+    initial_n_type_IP = 40
+    initial_n_type_PT = 150
+    initial_n_type_CA = 12
+
+    tokens_amount_per_group = {"OC": 0.25 * tokens_amount_initial, "IP": 0.25 * tokens_amount_initial, 
+                               "PT": 0.25 * tokens_amount_initial, "CA": 0.25 * tokens_amount_initial}
 
     participants = []
 
-    for i in range(initial_n_type_M):
-        participant_wealth = 0.057 * tokens_amount
-        participant = Node.Node(type="M", community="M", incentive_mechanism="constant", 
-                                wealth= participant_wealth, reputation=None, incentive_decision="best_interest")
+    tokens_distribution_OC = distirbute_tokens_Pareto(tokens_amount_per_group["OC"], initial_n_type_OC)
+    for i in range(initial_n_type_OC):
+        participant_wealth = tokens_distribution_OC[i]
+        participant = Node.Node(wealth=participant_wealth, group="OC", incentive_mechanism="constant")
         participants.append(participant)
 
-    for i in range(initial_n_type_I):
-        participant_wealth = 0.093 * tokens_amount
-        participant = Node.Node(type="I", community="I", incentive_mechanism="constant", 
-                                wealth= participant_wealth, reputation=None, incentive_decision="best_interest")
+    tokens_distribution_IP = distirbute_tokens_Pareto(tokens_amount_per_group["IP"], initial_n_type_IP)
+    for i in range(initial_n_type_IP):
+        participant_wealth = tokens_distribution_IP[i]
+        participant = Node.Node(wealth=participant_wealth, group="IP", incentive_mechanism="constant")
         participants.append(participant)
     
-    for i in range(initial_n_type_C):
-        participant_wealth = 0.005 * tokens_amount
-        participant = Node.Node(type="C", community="C", incentive_mechanism="constant", 
-                                wealth= participant_wealth, reputation=None, incentive_decision="best_interest")
+    tokens_distribution_PT = distirbute_tokens_Pareto(tokens_amount_per_group["PT"], initial_n_type_PT)
+    for i in range(initial_n_type_PT):
+        participant_wealth = tokens_distribution_PT[i]
+        participant = Node.Node(wealth=participant_wealth, group="PT", incentive_mechanism="constant")
+        participants.append(participant)
+
+    tokens_distribution_CA = distirbute_tokens_Pareto(tokens_amount_per_group["CA"], initial_n_type_CA)
+    for i in range(initial_n_type_CA):
+        participant_wealth = tokens_distribution_CA[i]
+        participant = Node.Node(wealth=participant_wealth, group="CA", incentive_mechanism="constant")
         participants.append(participant)
         
     return participants
@@ -74,3 +88,28 @@ def remove_participant(universe, type_participant):
     universe.participants.remove(to_be_removed)
     
     return universe
+
+def distirbute_tokens_Pareto(tokens_amount, num_participants):
+    """
+    Distribute tokens among participants following the Pareto distribution.
+
+    Parameters:
+    - tokens_amount (int): Total number of tokens to be distributed.
+    - num_participants (int): Number of participants.
+    - alpha (float): Pareto distribution parameter. Default is 1.16.
+
+    Returns:
+    - list: List of tokens for each participant.
+    """
+    alpha = 1.16
+
+    # Generate Pareto distributed values
+    pareto_values = np.random.pareto(alpha, num_participants)
+    
+    # Normalize the values so that they sum up to total_tokens
+    normalized_values = pareto_values / pareto_values.sum() * tokens_amount
+    
+    # Round the values to 4 decimal places
+    token_distribution = np.round(normalized_values, 4)
+    
+    return token_distribution.tolist()

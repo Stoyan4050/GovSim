@@ -13,6 +13,10 @@ TOKENS_AMOUNT = 1000000
 RANDOM_SEED = 42
 network_update = [0, 0, 0]
 
+# add a probability of leaving
+# fitness network
+# block models
+# number of clusters/connected components
 
 def main():
     
