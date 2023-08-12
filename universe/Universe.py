@@ -3,17 +3,11 @@
 # Universe Class
 
 class Universe:
-  def __init__(self, participants, avg_voting_rate, wealth, tokens_amount, wealth_dis_method, condition):
+  def __init__(self, participants, avg_voting_rate, tokens_amount, participants_per_group):
     self.participants = participants
     self.avg_voting_rate = avg_voting_rate
-    self.wealth = wealth
     self.tokens_amount = tokens_amount
-    self.wealth_dis_method = wealth_dis_method
-    self.condition = condition
-
-  # Returns the wealth distribution of the universe, tokens per participant
-  def get_wealth_distribtuion_universe(self):
-    return wd.WealthDistribution(self.wealth_dis_method, self.participants, self.wealth).get_wealth_distribution()
+    self.participants_per_group = participants_per_group
 
   def get_avg_voting_rate(self):
     return self.avg_voting_rate
@@ -27,6 +21,4 @@ class Universe:
   def tokens_amount(self):
     return self.tokens_amount
   
-  def get_token_value(self):
-    return self.wealth / self.tokens_amount
     

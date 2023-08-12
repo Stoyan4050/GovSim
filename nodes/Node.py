@@ -25,3 +25,23 @@ class Node:
         self.preferences.pop(0)
         self.preferences.append(preference)
 
+    def compute_fitness(self, other_node):
+        if self.group == other_node.group:
+            R = np.random.uniform(0.5, 1)
+        else:
+            R = np.random.uniform(0, 0.5)
+        
+        W = other_node.wealth / max([node.wealth for node in self.connections + [self]])
+
+        if len(other_node.connections) == 0:
+            D = 0
+        else:
+            D = len(other_node.connections) / max([len(node.connections) for node in self.connections + [self]])
+
+        if len(self.preferences) < 10:
+            corr = 0
+        else:
+            corr = np.corrcoef(self.preferences, other_node.preferences)
+        
+        return 0.5 * R + 0.5 * (corr + W + D) / 3
+

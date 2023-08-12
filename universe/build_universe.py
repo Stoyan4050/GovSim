@@ -3,20 +3,16 @@ from nodes import Node
 import numpy as np
 
 # provide initial settings
-def build_universe():
-    
-    avg_voting_rate=0.5
-    wealth=0
+def build_universe(avg_voting_rate=1):
     initial_token_amount = 1000
     tokens_amount = 10000
-    wealth_dis_method="normal"
-    participants = get_network_participants(initial_token_amount, wealth_dis_method)
+    participants, participants_per_group = get_network_participants(initial_token_amount)
     universe = un.Universe(participants=participants, avg_voting_rate=avg_voting_rate, 
-                           wealth=wealth, tokens_amount=tokens_amount, wealth_dis_method=wealth_dis_method, condition=[0, 0, 0])
+                           tokens_amount=tokens_amount, participants_per_group=participants_per_group)
     return universe
 
-# add initial number of network participants
-def get_network_participants(tokens_amount_initial, wealth_dis_method):
+# generate initial memebers/nodes of the network
+def get_network_participants(tokens_amount_initial):
     
     initial_n_type_OC = 15
     initial_n_type_IP = 40
@@ -25,6 +21,8 @@ def get_network_participants(tokens_amount_initial, wealth_dis_method):
 
     tokens_amount_per_group = {"OC": 0.25 * tokens_amount_initial, "IP": 0.25 * tokens_amount_initial, 
                                "PT": 0.25 * tokens_amount_initial, "CA": 0.25 * tokens_amount_initial}
+    
+    participants_per_group = {"OC": [], "IP": [], "PT": [], "CA": []}
 
     participants = []
 
@@ -33,26 +31,30 @@ def get_network_participants(tokens_amount_initial, wealth_dis_method):
         participant_wealth = tokens_distribution_OC[i]
         participant = Node.Node(wealth=participant_wealth, group="OC", incentive_mechanism="constant")
         participants.append(participant)
+        participants_per_group["OC"].append(participant)
 
     tokens_distribution_IP = distirbute_tokens_Pareto(tokens_amount_per_group["IP"], initial_n_type_IP)
     for i in range(initial_n_type_IP):
         participant_wealth = tokens_distribution_IP[i]
         participant = Node.Node(wealth=participant_wealth, group="IP", incentive_mechanism="constant")
         participants.append(participant)
+        participants_per_group["IP"].append(participant)
     
     tokens_distribution_PT = distirbute_tokens_Pareto(tokens_amount_per_group["PT"], initial_n_type_PT)
     for i in range(initial_n_type_PT):
         participant_wealth = tokens_distribution_PT[i]
         participant = Node.Node(wealth=participant_wealth, group="PT", incentive_mechanism="constant")
         participants.append(participant)
+        participants_per_group["PT"].append(participant)
 
     tokens_distribution_CA = distirbute_tokens_Pareto(tokens_amount_per_group["CA"], initial_n_type_CA)
     for i in range(initial_n_type_CA):
         participant_wealth = tokens_distribution_CA[i]
         participant = Node.Node(wealth=participant_wealth, group="CA", incentive_mechanism="constant")
         participants.append(participant)
+        participants_per_group["CA"].append(participant)
         
-    return participants
+    return participants, participants_per_group
 
 # add new participant to the network
 def add_new_participants(universe, new_participant_type):

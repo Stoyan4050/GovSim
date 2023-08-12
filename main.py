@@ -1,12 +1,11 @@
 import numpy as np
-from universe import universe_development
+from universe import build_universe
 from voting import voting_development, Voting
 from voting_decision import VotingDecision
 
 PARTICIPANTS = 1000
 VOTING_METHOD = 'simple_majority'
 VOTING_INCENTIVE = 'none'
-WEALTH_DISTRIBUTION = 'uniform'
 AVG_VOTING_RATE = 0.5
 WEALTH = 1000000
 TOKENS_AMOUNT = 1000000
@@ -22,11 +21,14 @@ def main():
     
     np.random.seed(RANDOM_SEED)
     # Create new universe
-    universe = universe_development.build_universe()
+    universe = build_universe.build_universe()
     print("Participants: ", len(universe.participants))
-    proposals = voting_development.define_proposals(num_proposals=50, distrib_per_group=(0.2, 0.2, 0.2), preference_methodology="binary")
-    print("Proposals: ", len(proposals))
-    simulate_voting(universe, proposals)
+    print("Participants per group:", universe.participants_per_group)
+    
+    
+    # proposals = voting_development.define_proposals(num_proposals=50, distrib_per_group=(0.2, 0.2, 0.2), preference_methodology="binary")
+    # print("Proposals: ", len(proposals))
+    # simulate_voting(universe, proposals)
 
 RATIO_PARTICIPANTS = [11.4, 1, 18.55, 0.6, 1.6]
 ovr_condition = [0, 0, 0]
@@ -69,40 +71,40 @@ def update_network(universe, condition):
     if ovr_condition[0] >= thresh:
         print("ADD PARTICIPANT VOTING M") 
 
-        universe_development.add_new_participants(universe, "M")
+        build_universe.add_new_participants(universe, "M")
         #print("New memeber: ", len(universe.participants))
         ovr_condition[0]-=thresh
     
     if ovr_condition[0] <= -1*thresh:
         print("REMOVE PARTICIPANT VOTING M") 
 
-        universe_development.remove_participant(universe, "M")
+        build_universe.remove_participant(universe, "M")
         ovr_condition[0]+=thresh
 
     if ovr_condition[1] >= thresh:
         print("ADD PARTICIPANT VOTING I") 
 
-        universe_development.add_new_participants(universe, "I")
+        build_universe.add_new_participants(universe, "I")
         #print("New memeber: ", len(universe.participants))
         ovr_condition[1]-=thresh
 
     if ovr_condition[1] <= -1*thresh:
         print("REMOVE PARTICIPANT VOTING I") 
 
-        universe_development.remove_participant(universe, "I")
+        build_universe.remove_participant(universe, "I")
         ovr_condition[1]+=thresh
 
     if ovr_condition[2] >= thresh:
         print("ADD PARTICIPANT VOTING C") 
 
-        universe_development.add_new_participants(universe, "C")
+        build_universe.add_new_participants(universe, "C")
         #print("New memeber: ", len(universe.participants))
         ovr_condition[2]-=thresh
 
     elif ovr_condition[2] <= -1*thresh:
         print("REMOVE PARTICIPANT VOTING C") 
 
-        universe_development.remove_participant(universe, "C")
+        build_universe.remove_participant(universe, "C")
         ovr_condition[2]+=thresh
 
     M_participants = len([p for p in universe.participants if p.type == "M"])
@@ -119,55 +121,55 @@ def add_participant_ratio(M_participants, I_participants, C_participants, univer
 
     if M_participants < np.ceil(C_participants / RATIO_PARTICIPANTS[0]) - 1 and ovr_condition[0] >= 0:
         print("ADD PARTICIPANT RATIO M") 
-        universe_development.add_new_participants(universe, "M")
+        build_universe.add_new_participants(universe, "M")
     
     if I_participants < np.ceil(C_participants / RATIO_PARTICIPANTS[2]) - 1 and ovr_condition[1] >= 0:
         print("ADD PARTICIPANT RATIO I") 
         
-        universe_development.add_new_participants(universe, "I")
+        build_universe.add_new_participants(universe, "I")
 
     if M_participants < np.ceil(I_participants / RATIO_PARTICIPANTS[3]) - 1 and ovr_condition[0] >= 0:
         print("ADD PARTICIPANT RATIO M") 
        
-        universe_development.add_new_participants(universe, "M")
+        build_universe.add_new_participants(universe, "M")
 
     if I_participants < np.ceil(M_participants / RATIO_PARTICIPANTS[4]) - 1 and ovr_condition[1] >= 0:
         print("ADD PARTICIPANT RATIO I") 
         
-        universe_development.add_new_participants(universe, "I")
+        build_universe.add_new_participants(universe, "I")
 
     if C_participants < np.ceil(I_participants * RATIO_PARTICIPANTS[2]) and ovr_condition[2] >= 0:
         print("ADD PARTICIPANT RATIO C") 
         
-        universe_development.add_new_participants(universe, "C")
+        build_universe.add_new_participants(universe, "C")
 
     if C_participants < np.ceil(M_participants * RATIO_PARTICIPANTS[0]) and ovr_condition[2] >= 0:
         print("ADD PARTICIPANT RATIO C") 
         
-        universe_development.add_new_participants(universe, "C")
+        build_universe.add_new_participants(universe, "C")
 
 def remove_participants_ratio(M_participants, I_participants, C_participants, universe):
 
 
     if I_participants > np.ceil(C_participants / RATIO_PARTICIPANTS[2]):
         print("REMOVE PARTICIPANT RATIO I")         
-        universe_development.remove_participant(universe, "I")
+        build_universe.remove_participant(universe, "I")
 
     if M_participants > np.ceil(I_participants / RATIO_PARTICIPANTS[3]):
         print("REMOVE PARTICIPANT RATIO M")     
-        universe_development.remove_participant(universe, "M")
+        build_universe.remove_participant(universe, "M")
 
     if I_participants > np.ceil(M_participants / RATIO_PARTICIPANTS[4]):
         print("REMOVE PARTICIPANT RATIO I")     
-        universe_development.remove_participant(universe, "I")
+        build_universe.remove_participant(universe, "I")
 
     if C_participants > np.ceil(I_participants * RATIO_PARTICIPANTS[2]):
         print("REMOVE PARTICIPANT RATIO C")     
-        universe_development.remove_participant(universe, "C")
+        build_universe.remove_participant(universe, "C")
 
     if C_participants > np.ceil(M_participants * RATIO_PARTICIPANTS[0]):
         print("REMOVE PARTICIPANT RATIO C")     
-        universe_development.remove_participant(universe, "C")
+        build_universe.remove_participant(universe, "C")
 
 
 if __name__ == '__main__':
