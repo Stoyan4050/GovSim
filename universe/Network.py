@@ -21,15 +21,22 @@ class Network:
 
     def update_connections(self):
         # Iterate over all pairs of nodes
-        for i in range(len(self.nodes)):
-            for j in range(i+1, len(self.nodes)):
-                node1 = self.nodes[i]
-                node2 = self.nodes[j]
+        for node1 in self.nodes:
+            other_nodes = [node for node in self.nodes if node != node1]
+            for node2 in other_nodes:
+                # node1 = self.nodes[i]
+                # node2 = self.nodes[j]
                 
+                print("Node 1: ", node1.group, "Node 2: ", node2.group)
                 # Compute the fitness between the two nodes
-                fitness_value = node1.compute_fitness(node2)
+                fitness_value = node1.compute_fitness(node2, self.nodes)
                 print("Fitness: ", fitness_value)
                 
+                # if fitness_value < 0.5:
+                #     connection_decision = 0
+                # else:
+                #     connection_decision = 1
+
                 connection_decision = self.generate_value_from_fitness(fitness_value)
                 print("Obtain value: ", connection_decision)
 
@@ -44,25 +51,33 @@ class Network:
                     print("Connection created")
 
     def visualize_network(self):
-        G = nx.Graph()
+        G = nx.DiGraph()
         for node in self.nodes:
             G.add_node(node)
             for conn in node.connections:
                 G.add_edge(node, conn)
         
         pos = nx.spring_layout(G)
-        nx.draw(G, pos, with_labels=True, node_size=700, node_color="skyblue")
+        nx.draw(G, pos, with_labels=False, node_size=700, node_color="skyblue")
+        
+        # Assuming each node has an attribute called 'label'
+        labels = {node: node.group for node in G.nodes()}
+        nx.draw_networkx_labels(G, pos, labels=labels)
+
+        # all_edges = G.edges()
+        # print("All edges: ", all_edges)
+        
         plt.title("Network Visualization")
         plt.show()
 
-    def generate_value_from_fitness(prob_of_1):
+    def generate_value_from_fitness(self, prob_of_1):
         """
         Generate a random value of 1 with a probability of 'prob_of_1' 
         and 0 with a probability of '1 - prob_of_1'.
         """
         return 1 if random.random() < prob_of_1 else 0
 
-    def random_wealth_value(min_wealth, max_wealth):
+    def random_wealth_value(self, min_wealth, max_wealth):
         """
         Generate a random float between min_wealth and max_wealth.
 

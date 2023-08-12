@@ -2,6 +2,7 @@ import numpy as np
 from universe import build_universe
 from voting import voting_development, Voting
 from voting_decision import VotingDecision
+import random
 
 PARTICIPANTS = 1000
 VOTING_METHOD = 'simple_majority'
@@ -20,18 +21,18 @@ network_update = [0, 0, 0]
 def main():
     
     np.random.seed(RANDOM_SEED)
+    random.seed(RANDOM_SEED)
     # Create new universe
-    universe = build_universe.build_universe()
+    universe, network = build_universe.build_universe_network()
     print("Participants: ", len(universe.participants))
-    print("Participants per group:", universe.participants_per_group)
-    
+    print("Network Connections: ", )
+    #print("Participants per group:", universe.participants_per_group)
+
+    network.visualize_network()
     
     # proposals = voting_development.define_proposals(num_proposals=50, distrib_per_group=(0.2, 0.2, 0.2), preference_methodology="binary")
     # print("Proposals: ", len(proposals))
     # simulate_voting(universe, proposals)
-
-RATIO_PARTICIPANTS = [11.4, 1, 18.55, 0.6, 1.6]
-ovr_condition = [0, 0, 0]
 
 def simulate_voting(universe, proposals):
     for proposal in proposals:
@@ -116,60 +117,6 @@ def update_network(universe, condition):
     add_participant_ratio(M_participants, I_participants, C_participants, universe, universe.condition)
     remove_participants_ratio(M_participants, I_participants, C_participants, universe)
 
-
-def add_participant_ratio(M_participants, I_participants, C_participants, universe, ovr_condition):
-
-    if M_participants < np.ceil(C_participants / RATIO_PARTICIPANTS[0]) - 1 and ovr_condition[0] >= 0:
-        print("ADD PARTICIPANT RATIO M") 
-        build_universe.add_new_participants(universe, "M")
-    
-    if I_participants < np.ceil(C_participants / RATIO_PARTICIPANTS[2]) - 1 and ovr_condition[1] >= 0:
-        print("ADD PARTICIPANT RATIO I") 
-        
-        build_universe.add_new_participants(universe, "I")
-
-    if M_participants < np.ceil(I_participants / RATIO_PARTICIPANTS[3]) - 1 and ovr_condition[0] >= 0:
-        print("ADD PARTICIPANT RATIO M") 
-       
-        build_universe.add_new_participants(universe, "M")
-
-    if I_participants < np.ceil(M_participants / RATIO_PARTICIPANTS[4]) - 1 and ovr_condition[1] >= 0:
-        print("ADD PARTICIPANT RATIO I") 
-        
-        build_universe.add_new_participants(universe, "I")
-
-    if C_participants < np.ceil(I_participants * RATIO_PARTICIPANTS[2]) and ovr_condition[2] >= 0:
-        print("ADD PARTICIPANT RATIO C") 
-        
-        build_universe.add_new_participants(universe, "C")
-
-    if C_participants < np.ceil(M_participants * RATIO_PARTICIPANTS[0]) and ovr_condition[2] >= 0:
-        print("ADD PARTICIPANT RATIO C") 
-        
-        build_universe.add_new_participants(universe, "C")
-
-def remove_participants_ratio(M_participants, I_participants, C_participants, universe):
-
-
-    if I_participants > np.ceil(C_participants / RATIO_PARTICIPANTS[2]):
-        print("REMOVE PARTICIPANT RATIO I")         
-        build_universe.remove_participant(universe, "I")
-
-    if M_participants > np.ceil(I_participants / RATIO_PARTICIPANTS[3]):
-        print("REMOVE PARTICIPANT RATIO M")     
-        build_universe.remove_participant(universe, "M")
-
-    if I_participants > np.ceil(M_participants / RATIO_PARTICIPANTS[4]):
-        print("REMOVE PARTICIPANT RATIO I")     
-        build_universe.remove_participant(universe, "I")
-
-    if C_participants > np.ceil(I_participants * RATIO_PARTICIPANTS[2]):
-        print("REMOVE PARTICIPANT RATIO C")     
-        build_universe.remove_participant(universe, "C")
-
-    if C_participants > np.ceil(M_participants * RATIO_PARTICIPANTS[0]):
-        print("REMOVE PARTICIPANT RATIO C")     
-        build_universe.remove_participant(universe, "C")
 
 
 if __name__ == '__main__':

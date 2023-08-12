@@ -1,23 +1,33 @@
 from universe import Universe as un
 from nodes import Node
+from universe import Network
 import numpy as np
 
 # provide initial settings
-def build_universe(avg_voting_rate=1):
+def build_universe_network(avg_voting_rate=1):
     initial_token_amount = 1000
     tokens_amount = 10000
     participants, participants_per_group = get_network_participants(initial_token_amount)
     universe = un.Universe(participants=participants, avg_voting_rate=avg_voting_rate, 
                            tokens_amount=tokens_amount, participants_per_group=participants_per_group)
-    return universe
+    
+    #build initila network
+    network = Network.Network()
+    for participant in participants:
+        network.add_node(participant)
+    
+    # add initial connections
+    network.update_connections()
+
+    return universe, network
 
 # generate initial memebers/nodes of the network
 def get_network_participants(tokens_amount_initial):
     
-    initial_n_type_OC = 15
-    initial_n_type_IP = 40
-    initial_n_type_PT = 150
-    initial_n_type_CA = 12
+    initial_n_type_OC = 3 #15
+    initial_n_type_IP = 5 #40
+    initial_n_type_PT = 10 #150
+    initial_n_type_CA = 2 #12
 
     tokens_amount_per_group = {"OC": 0.25 * tokens_amount_initial, "IP": 0.25 * tokens_amount_initial, 
                                "PT": 0.25 * tokens_amount_initial, "CA": 0.25 * tokens_amount_initial}
