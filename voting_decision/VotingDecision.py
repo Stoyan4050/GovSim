@@ -4,53 +4,101 @@ from scipy.stats import truncnorm
 
 # Generate a voting decision
 class VotingDecision:
-    def __init__(self, voter, proposal):
-        self.voter = voter
+    def __init__(self, voters, proposal):
+        self.voters = voters
         self.proposal = proposal
     # Returns the voting decision of voter
     # TODO: Implement more complex voting decision
-    def generate_voting_decision(self):
+    def generate_voting_decision_benefit(self):
         
-        return compute_preferences(self.proposal, self.voter)
+        for voter in self.voters:
+            preference_continuos = compute_preferences_benefit(self.proposal, self.voter)
+            if preference_continuos != None:
+                voter.last_preference = preference_continuos
+                self.voters.remove(voter)
+
+        return self.voters
+    
+    def generate_voting_decision_neutral(self):
+
+        for voter in self.voters:
+            preference_continuos = compute_preferences_neutral(self.proposal, self.voter)
+            if preference_continuos != None:
+                voter.last_preference = preference_continuos
+                self.voters.remove(voter)
+
+        return self.voters
+    
+    def generate_voting_decision_connections(self):
+        
+        for voter in self.voters:
+            preference_continuos = compute_preferences_neutral(self.proposal, self.voter)
+            if preference_continuos != None:
+                voter.last_preference = preference_continuos
+                self.voters.remove(voter)
+
+        return self.voters
     
 
-#constants
-#RANDOM_INFORMED  = 0.6
-
-def compute_preferences(proposal, voter):
+def compute_preferences_benefit(proposal, voter):
     
-    if voter.group == "OC":
-        if proposal.OC_preferences == 1:
-            # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
-            preference_continuos = generate_truncated_normal(mean=0.75)
+    if voter.group == "OC" and proposal.OC_preferences == 1:
+        # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
+        preference_continuos = generate_truncated_normal(mean=0.75)
 
+    elif voter.type == "IP" and proposal.IP_preferences == 1:
+        # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
+        preference_continuos = generate_truncated_normal(mean=0.75)
+            
+    elif voter.type == "PT" and proposal.PT_preferences == 1:
+        # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
+        preference_continuos = generate_truncated_normal(mean=0.75)
+            
+    elif voter.type == "CA" and proposal.CA_preferences == 1:
+        # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
+        preference_continuos = generate_truncated_normal(mean=0.75)
 
-    elif voter.type == "IP":
-        if proposal.IP_preferences == 1:
-            # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
-            preference_continuos = generate_truncated_normal(mean=0.75)
-            
-    elif voter.type == "PT":
-        if proposal.PT_preferences == 1:
-            # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
-            preference_continuos = generate_truncated_normal(mean=0.75)
-            
-    elif voter.type == "CA":
-        if proposal.CA_preferences == 1:
-            # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
-            preference_continuos = generate_truncated_normal(mean=0.75)
-            
     else:
-        raise Exception("Invalid voter type")
+        return None
 
-    #print("Voter type: ", voter.type, " Chosen option: ", chosen_option)
-    return chosen_option
+    return preference_continuos
+
+def compute_preferences_neutral(proposal, voter):
+    
+    neutral_flag = 1
+
+    # Check if the voter is actually neutral
+    for node in voter.connections:
+        if node.group == "OC" and proposal.OC_preferences == 1:
+            neutral_flag = 0
+        
+        elif voter.group == "IP" and proposal.IP_preferences == 1:
+            neutral_flag = 0
+        
+        elif voter.group == "CA" and proposal.CA_preferences == 1:
+            neutral_flag = 0
+
+        elif voter.group == "PT" and proposal.PT_preferences == 1:
+            neutral_flag = 0
+
+    if neutral_flag == 1:
+        # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
+        preference_continuos = generate_truncated_normal(mean=0.5)
+        return preference_continuos
+    
+    else:
+        return None
+
+
 
 def get_mean_connections(voter):
     sum_preferences = 0
     for node in voter.connections:
-        # could lead to error
-        sum_preferences += node.last_preference[-1]
+        if node.last_preference != None:
+            sum_preferences += node.last_preference
+        else:
+            print("NONE")
+
 
 def generate_truncated_normal(mean, sd=0.1, low=0, upp=1):
     """
