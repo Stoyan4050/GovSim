@@ -41,7 +41,7 @@ def simulate_voting(universe, network, num_proposals):
         print("Proposals: ", (proposal))
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
-        voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
+        voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
 
         result = voting.vote()
         if result == "Y":

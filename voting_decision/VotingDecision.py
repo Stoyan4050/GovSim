@@ -12,7 +12,7 @@ class VotingDecision:
     def generate_voting_decision_benefit(self):
         
         for voter in self.voters:
-            preference_continuos = compute_preferences_benefit(self.proposal, self.voter)
+            preference_continuos = compute_preferences_benefit(self.proposal, voter)
             if preference_continuos != None:
                 voter.last_preference = preference_continuos
                 self.voters.remove(voter)
@@ -22,7 +22,7 @@ class VotingDecision:
     def generate_voting_decision_neutral(self):
 
         for voter in self.voters:
-            preference_continuos = compute_preferences_neutral(self.proposal, self.voter)
+            preference_continuos = compute_preferences_neutral(self.proposal, voter)
             if preference_continuos != None:
                 voter.last_preference = preference_continuos
                 self.voters.remove(voter)
@@ -32,7 +32,7 @@ class VotingDecision:
     def generate_voting_decision_connections(self):
         
         for voter in self.voters:
-            preference_continuos = compute_preferences_neutral(self.proposal, self.voter)
+            preference_continuos = compute_preferences_connections(voter)
             if preference_continuos != None:
                 voter.last_preference = preference_continuos
                 self.voters.remove(voter)
@@ -89,16 +89,19 @@ def compute_preferences_neutral(proposal, voter):
     else:
         return None
 
-
-
-def get_mean_connections(voter):
+def compute_preferences_connections(voter):
     sum_preferences = 0
+    connection_with_preferences = 0
+    # Iterate through all connections of the voter
     for node in voter.connections:
+        # Check if the node has preference
         if node.last_preference != None:
             sum_preferences += node.last_preference
+            connection_with_preferences += 1
         else:
             print("NONE")
 
+    return sum_preferences / connection_with_preferences
 
 def generate_truncated_normal(mean, sd=0.1, low=0, upp=1):
     """

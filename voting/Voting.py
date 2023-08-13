@@ -2,18 +2,17 @@ import numpy as np
 from voting.voting_mechanisms import token_based_vote, quadratic_vote
 from voting_decision import VotingDecision
 from collections import Counter
+from voting_incentives import Incentive
 
-
-# constants:
-VOTING_INCENTIVE_THRESHOLD = 0.5
 
 # Voting simulation class
 # Candidates: list of candidates with wights, for voters to select the preferred candidate
 class Voting:
-    def __init__(self, proposal, network, voting_mechanism):
+    def __init__(self, proposal, network, universe, voting_mechanism):
         self.proposal = proposal
         self.network = network
         self.voting_mechanism = voting_mechanism
+        self.universe = universe
 
     def vote(self):
         # Each voter votes for a candidate we save the votes in a list
@@ -41,27 +40,49 @@ class Voting:
         if len(voters) != 0:
             Exception("Issue with the voting decision")
 
-        if decision != "abstain":
-            voted+=1
-            if self.voting_mechanism == "token_based_vote":
-                votes_node = token_based_vote(voter)
-            elif self.voting_mechanism == "quadratic_vote":
-                votes_node = token_based_vote(voter)
-            else:
-                Exception("Voting mechanism not found")
-        else:
-            abstain+=1
-        
-        for vote in range(int(votes_node)):
-            total_votes.append(decision)
+        # Each voter votes for a candidate we save the votes in a list
+        for voter in self.network.nodes:
+            # Get the incentive decision of the voter
+            # Determine if the voter will vote or abstain
+            incentive_decision = Incentive.Incentive(voter, self.universe).get_incentive_decision()
+            
+            # Consider the case when voter votes
+            if incentive_decision != "abstain":
+                # Count the number of voters that voted
+                voted+=1
 
-        GINI = self.calculate_GINI([p.wealth for p in self.voters])
+                # Get the number of votes from the voter based on the chosen voting mechanism
+                if self.voting_mechanism == "token_based_vote":
+                    votes_node = token_based_vote(voter)
+                elif self.voting_mechanism == "quadratic_vote":
+                    votes_node = quadratic_vote(voter)
+                else:
+                    Exception("Voting mechanism not found")
+            else:
+                abstain+=1
+
+            # Get the decision of the voter based on the last preference
+            decision = self.get_decision_from_preference_voter(voter)
+
+            for vote in range(np.floor(votes_node)):
+                total_votes.append(decision)
+
+        GINI = self.calculate_GINI([p.wealth for p in self.network.nodes])
         # Get the results of the voting mechanism and the voting decision
         voting_outcome, voting_summary = self.get_results(total_votes)
         voting_rate = voted/len(voters)
         # Display the results
         self.display_results(voting_outcome, voting_summary, voting_rate=voting_rate)
         return voting_outcome
+
+    # Determine the decision of the voter based on the last preference
+    def get_decision_from_preference_voter(self, voter):
+        if voter.last_preference > 0.5:
+            decision = "Y"
+        else:
+            decision = "N"
+
+        return decision
 
     # Reset the last preferences of the voters    
     def reset_voters_preferences(self, voters):
