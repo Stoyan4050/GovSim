@@ -64,23 +64,26 @@ class Voting:
             # Get the decision of the voter based on the last preference
             decision = self.get_decision_from_preference_voter(voter)
 
-            for vote in range(np.floor(votes_node)):
+            for vote in range(int(np.floor(votes_node))):
                 total_votes.append(decision)
 
         GINI = self.calculate_GINI([p.wealth for p in self.network.nodes])
         # Get the results of the voting mechanism and the voting decision
         voting_outcome, voting_summary = self.get_results(total_votes)
-        voting_rate = voted/len(voters)
+        voting_rate = voted/len(self.network.nodes)
         # Display the results
         self.display_results(voting_outcome, voting_summary, voting_rate=voting_rate)
         return voting_outcome
 
     # Determine the decision of the voter based on the last preference
     def get_decision_from_preference_voter(self, voter):
+
         if voter.last_preference > 0.5:
             decision = "Y"
         else:
             decision = "N"
+
+        print("Voter: ", voter.group, " - ", voter.last_preference, " Decision: ", decision)
 
         return decision
 
@@ -126,15 +129,15 @@ class Voting:
         sorted_x = sorted(x)
         n = len(sorted_x)
         cum_values = np.cumsum(sorted_x)
-        scale = np.array(range(1, n+1)) / n
+        #scale = np.array(range(1, n+1)) / n
         print("GINI1: ", (n + 1 - 2 * np.sum(cum_values) / cum_values[-1]) / n)
 
-        mad = np.abs(np.subtract.outer(x, x)).mean()
-        # Relative mean absolute difference
-        rmad = mad/np.mean(x)
-        # Gini coefficient
-        g = 0.5 * rmad
-        print("GINI2: ", g)
+        # mad = np.abs(np.subtract.outer(x, x)).mean()
+        # # Relative mean absolute difference
+        # rmad = mad/np.mean(x)
+        # # Gini coefficient
+        # g = 0.5 * rmad
+        # print("GINI2: ", g)
 
 
 # candidates list of 2 options

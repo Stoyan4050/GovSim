@@ -38,35 +38,12 @@ def simulate_voting(universe, network, num_proposals):
     for i in range(num_proposals):
 
         proposal = voting_development.define_proposal(network)
-        print("Proposals: ", (proposal))
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
         voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
 
         result = voting.vote()
-        if result == "Y":
-            if proposal.M_preferences[0] == 1:
-                universe.condition[0]+=0.1
-                ovr_condition[0]+=0.1
-            if proposal.I_preferences[0] == 1:
-                universe.condition[1]+=0.1
-                ovr_condition[1]+=0.1
-            if proposal.C_preferences[0] == 1:
-                universe.condition[2]+=0.1
-                ovr_condition[2]+=0.1
-        else:
-            if proposal.M_preferences[0] == 1:
-                universe.condition[0]-=0.1
-                ovr_condition[0]-=0.1
-            if proposal.I_preferences[0] == 1:
-                universe.condition[1]-=0.1
-                ovr_condition[1]-=0.1
-            if proposal.C_preferences[0] == 1:
-                universe.condition[2]-=0.1
-                ovr_condition[2]-=0.1
-
-        print("Universe status: ", universe.condition)
-        print("Universe status2: ", ovr_condition)
+        print("Result: ", result)
 
         update_network(universe, universe.condition)
 
