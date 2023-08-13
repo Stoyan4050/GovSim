@@ -8,6 +8,7 @@ class Node:
         self.incentive_mechanism = incentive_mechanism
         self.connections = []
         self.preferences = []
+        self.last_preference = 0
     
     def get_voting_incentive(self):
         return Incentive.Incentive(self).get_voting_incentive()

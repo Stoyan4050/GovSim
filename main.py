@@ -13,6 +13,7 @@ TOKENS_AMOUNT = 1000000
 RANDOM_SEED = 42
 network_update = [0, 0, 0]
 
+num_proposals = 5
 # add a probability of leaving
 # fitness network
 # block models
@@ -29,14 +30,19 @@ def main():
     #print("Participants per group:", universe.participants_per_group)
 
     network.visualize_network()
-    
-    # proposals = voting_development.define_proposals(num_proposals=50, distrib_per_group=(0.2, 0.2, 0.2), preference_methodology="binary")
-    # print("Proposals: ", len(proposals))
-    # simulate_voting(universe, proposals)
 
-def simulate_voting(universe, proposals):
-    for proposal in proposals:
-        voting = Voting.Voting(proposal, universe.participants, voting_mechanism="majority_vote")
+    simulate_voting(universe, network, num_proposals)
+
+def simulate_voting(universe, network, num_proposals):
+
+    for i in range(num_proposals):
+
+        proposal = voting_development.define_proposal(network)
+        print("Proposals: ", (proposal))
+
+        # Voting mechanism can be: token_based_vote, quadratic_vote
+        voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
+
         result = voting.vote()
         if result == "Y":
             if proposal.M_preferences[0] == 1:

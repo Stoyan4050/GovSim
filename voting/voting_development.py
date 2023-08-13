@@ -1,47 +1,51 @@
 from voting.Voting import Proposal
+import numpy as np
 
 # num_proposals: number of proposals
-# distrib_per_group: tuple of 3 values indicating the distribution of the proposals per group
-# preference_methodology: String indicating the preference methodology per group
-def define_proposals(num_proposals, distrib_per_group, preference_methodology):
-    all_proposals = []
-    
-    proposals_benefit_group_C = int(num_proposals * distrib_per_group[2])
-    proposals_benefit_group_I = int(num_proposals * distrib_per_group[1])
-    proposals_benefit_group_M = int(num_proposals * distrib_per_group[0])
-    
-    for i in range(proposals_benefit_group_C):
-        C_preferences, I_preferences, M_preferences = binary_preferences("C")
-        proposal = Proposal(["Y", "N"], C_preferences, I_preferences, M_preferences)
-        all_proposals.append(proposal)
-    
-    for i in range(proposals_benefit_group_I):
-        C_preferences, I_preferences, M_preferences = binary_preferences("I")
-        proposal = Proposal(["Y", "N"], C_preferences, I_preferences, M_preferences)
-        all_proposals.append(proposal)
+proposal_counter = 0
+def define_proposal(network):
+    global proposal_counter
 
-    for i in range(proposals_benefit_group_M):
-        C_preferences, I_preferences, M_preferences = binary_preferences("M")
-        proposal = Proposal(["Y", "N"], C_preferences, I_preferences, M_preferences)
-        all_proposals.append(proposal)
+    proposal_counter += 1
     
-    return all_proposals
+    sum_tokens_OC = np.round(np.sum([node.wealth for node in network.nodes if node.group == "OC"]), 2)
+    sum_tokens_IP = np.round(np.sum([node.wealth for node in network.nodes if node.group == "IP"]), 2)
+    sum_tokens_PT = np.round(np.sum([node.wealth for node in network.nodes if node.group == "PT"]), 2)
+    sum_tokens_CA = np.round(np.sum([node.wealth for node in network.nodes if node.group == "CA"]), 2)
 
-def binary_preferences(proposals_benefit_group):
-    if proposals_benefit_group == "C":
-        C_preferences = [1, -1]
-        I_preferences = [0, 0]
-        M_preferences = [-1, 1]
-    elif proposals_benefit_group == "I":
-        C_preferences = [0, 0]
-        I_preferences = [1, -1]
-        M_preferences = [0, 0]
-    elif proposals_benefit_group == "M":
-        C_preferences = [-1, 1]
-        I_preferences = [0, 0]
-        M_preferences = [1, -1]
-    else:
-        raise Exception("Invalid group")
-         
+    total_token_holding = sum_tokens_OC + sum_tokens_IP + sum_tokens_PT + sum_tokens_CA
 
-    return C_preferences, I_preferences, M_preferences
+    # compute ratios:
+    proposal_preferences = get_benefiting_group([np.round(sum_tokens_OC/total_token_holding, 2), np.round(sum_tokens_IP/total_token_holding, 2), 
+                            np.round(sum_tokens_PT/total_token_holding, 2), np.round(sum_tokens_CA/total_token_holding, 2)])
+
+    print("Proposal preferences: ", proposal_preferences)
+
+
+    proposal = Proposal(["Y", "N"], OC_preferences=proposal_preferences[0], IP_preferences=proposal_preferences[1], 
+                        PT_preferences=proposal_preferences[2], CA_preferences=proposal_preferences[3])
+
+    return proposal
+
+
+def get_benefiting_group(probs):
+    """
+    Generate a sequence of length 4 with one 1 and three 0s based on given probabilities.
+
+    Parameters:
+    - probs (list): A list of 4 probabilities.
+
+    Returns:
+    - list: A list containing one 1 and three 0s.
+    """
+    if len(probs) != 4:
+        raise ValueError("The length of the probabilities list must be 4.")
+    
+    # Determine the position of the 1 based on the given probabilities
+    position_of_one = np.random.choice(4, p=probs)
+    
+    # Create the sequence
+    sequence = [0, 0, 0, 0]
+    sequence[position_of_one] = 1
+    
+    return sequence
