@@ -8,16 +8,16 @@ class VotingDecision:
         self.voters = voters
         self.proposal = proposal
     # Returns the voting decision of voter
-    # TODO: Implement more complex voting decision
     def generate_voting_decision_benefit(self):
         left_to_vote = [] 
         for voter in self.voters:
             preference_continuos = compute_preferences_benefit(self.proposal, voter)
             if preference_continuos != None:
                 voter.last_preference = preference_continuos
+                voter.preferences.append(preference_continuos)
             else:
                 left_to_vote.append(voter)
-        print("Voters1: ", len(left_to_vote))
+        #print("Voters1: ", len(left_to_vote))
         return left_to_vote
     
     def generate_voting_decision_neutral(self):
@@ -26,9 +26,10 @@ class VotingDecision:
             preference_continuos = compute_preferences_neutral(self.proposal, voter)
             if preference_continuos != None:
                 voter.last_preference = preference_continuos
+                voter.preferences.append(preference_continuos)
             else:
                 left_to_vote.append(voter)
-        print("Voters2: ", len(left_to_vote))
+        #print("Voters2: ", len(left_to_vote))
 
         return left_to_vote
     
@@ -38,9 +39,10 @@ class VotingDecision:
             preference_continuos = compute_preferences_connections(voter)
             if preference_continuos != None:
                 voter.last_preference = preference_continuos
+                voter.preferences.append(preference_continuos)
             else:
                 left_to_vote.append(voter)
-        print("Voters3: ", len(left_to_vote))
+        #print("Voters3: ", len(left_to_vote))
 
         return left_to_vote
     
@@ -50,23 +52,23 @@ def compute_preferences_benefit(proposal, voter):
     if voter.group == "OC" and proposal.OC_preferences == 1:
         # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
         preference_continuos = generate_truncated_normal(mean=0.75)
-        print("A1 ", voter.group, preference_continuos)
+        #print("A1 ", voter.group, preference_continuos)
 
     elif voter.group == "IP" and proposal.IP_preferences == 1:
         # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
         preference_continuos = generate_truncated_normal(mean=0.75)
-        print("A1 ", voter.group, preference_continuos)
+        #print("A1 ", voter.group, preference_continuos)
 
             
     elif voter.group == "PT" and proposal.PT_preferences == 1:
         # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
         preference_continuos = generate_truncated_normal(mean=0.75)
-        print("A1 ", voter.group, preference_continuos)
+        #print("A1 ", voter.group, preference_continuos)
   
     elif voter.group == "CA" and proposal.CA_preferences == 1:
         # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
         preference_continuos = generate_truncated_normal(mean=0.75)
-        print("A1 ", voter.group, preference_continuos)
+        #print("A1 ", voter.group, preference_continuos)
 
 
     else:
@@ -94,8 +96,8 @@ def compute_preferences_neutral(proposal, voter):
 
     if neutral_flag == 1:
         # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
-        preference_continuos = generate_truncated_normal(mean=0.5)
-        print("A2 ", voter.group, preference_continuos)
+        preference_continuos = generate_truncated_normal(mean=0.25)
+        #print("A2 ", voter.group, preference_continuos)
 
         return preference_continuos
     
@@ -112,9 +114,12 @@ def compute_preferences_connections(voter):
             sum_preferences += node.last_preference
             connection_with_preferences += 1
         else:
-            print("NONE")
+            preference_continuos = generate_truncated_normal(mean=0.25)
+            sum_preferences += preference_continuos
+            connection_with_preferences += 1
+            #print("NONE")
     
-    print("A3 ", voter.group, sum_preferences / connection_with_preferences)
+    #print("A3 ", voter.group, sum_preferences / connection_with_preferences)
 
     return sum_preferences / connection_with_preferences
 

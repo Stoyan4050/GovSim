@@ -73,7 +73,8 @@ class Voting:
         voting_rate = voted/len(self.network.nodes)
         # Display the results
         self.display_results(voting_outcome, voting_summary, voting_rate=voting_rate)
-        return voting_outcome
+        
+        return voting_outcome, GINI
 
     # Determine the decision of the voter based on the last preference
     def get_decision_from_preference_voter(self, voter):
@@ -83,7 +84,7 @@ class Voting:
         else:
             decision = "N"
 
-        print("Voter: ", voter.group, " - ", voter.last_preference, " Decision: ", decision)
+        #print("Voter: ", voter.group, " - ", voter.last_preference, " Decision: ", decision)
 
         return decision
 
@@ -130,8 +131,11 @@ class Voting:
         n = len(sorted_x)
         cum_values = np.cumsum(sorted_x)
         #scale = np.array(range(1, n+1)) / n
+        gini = (n + 1 - 2 * np.sum(cum_values) / cum_values[-1]) / n
+
         print("GINI1: ", (n + 1 - 2 * np.sum(cum_values) / cum_values[-1]) / n)
 
+        return gini
         # mad = np.abs(np.subtract.outer(x, x)).mean()
         # # Relative mean absolute difference
         # rmad = mad/np.mean(x)

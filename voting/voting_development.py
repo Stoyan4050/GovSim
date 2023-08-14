@@ -7,19 +7,22 @@ def define_proposal(network):
     global proposal_counter
 
     proposal_counter += 1
-    
-    sum_tokens_OC = np.round(np.sum([node.wealth for node in network.nodes if node.group == "OC"]), 2)
-    sum_tokens_IP = np.round(np.sum([node.wealth for node in network.nodes if node.group == "IP"]), 2)
-    sum_tokens_PT = np.round(np.sum([node.wealth for node in network.nodes if node.group == "PT"]), 2)
-    sum_tokens_CA = np.round(np.sum([node.wealth for node in network.nodes if node.group == "CA"]), 2)
+
+    sum_tokens_OC = np.round(np.sum([node.wealth for node in network.nodes if node.group == "OC"]), 4)
+    sum_tokens_IP = np.round(np.sum([node.wealth for node in network.nodes if node.group == "IP"]), 4)
+    sum_tokens_PT = np.round(np.sum([node.wealth for node in network.nodes if node.group == "PT"]), 4)
+    sum_tokens_CA = np.round(np.sum([node.wealth for node in network.nodes if node.group == "CA"]), 4)
 
     total_token_holding = sum_tokens_OC + sum_tokens_IP + sum_tokens_PT + sum_tokens_CA
 
     # compute ratios:
-    proposal_preferences = get_benefiting_group([np.round(sum_tokens_OC/total_token_holding, 2), np.round(sum_tokens_IP/total_token_holding, 2), 
-                            np.round(sum_tokens_PT/total_token_holding, 2), np.round(sum_tokens_CA/total_token_holding, 2)])
+    ratio_OC = np.round(sum_tokens_OC/total_token_holding, 4)
+    ratio_IP = np.round(sum_tokens_IP/total_token_holding, 4)
+    ratio_PT = np.round(sum_tokens_PT/total_token_holding, 4)
+    ratio_CA = 1 - ratio_OC - ratio_IP - ratio_PT        
+    proposal_preferences = get_benefiting_group([ratio_OC, ratio_IP, ratio_PT, ratio_CA])
 
-    print("Proposal preferences: ", proposal_preferences)
+    #print("Proposal preferences: ", proposal_preferences)
 
 
     proposal = Proposal(["Y", "N"], OC_preferences=proposal_preferences[0], IP_preferences=proposal_preferences[1], 
@@ -38,6 +41,7 @@ def get_benefiting_group(probs):
     Returns:
     - list: A list containing one 1 and three 0s.
     """
+    print("probs: ", probs)
     if len(probs) != 4:
         raise ValueError("The length of the probabilities list must be 4.")
     
