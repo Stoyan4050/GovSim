@@ -10,21 +10,21 @@ class Node:
         self.preferences = []
         self.last_preference = None
     
-    def get_voting_incentive(self):
-        return Incentive.Incentive(self).get_voting_incentive()
+    # def get_voting_incentive(self):
+    #     return Incentive.Incentive(self).get_voting_incentive()
 
-    def update_preferences(self, proposal):
-        # Update the preferences of the node based on the proposal
-        if proposal[self.group] == 1:
-            preference = np.random.normal(0.75, 0.05)
-        elif any([conn.preferences[-1] > 0.5 for conn in self.connections]):
-            preference = sum([conn.preferences[-1] for conn in self.connections]) / len(self.connections)
-        else:
-            preference = np.random.normal(0.5, 0.05)
+    # def update_preferences(self, proposal):
+    #     # Update the preferences of the node based on the proposal
+    #     if proposal[self.group] == 1:
+    #         preference = np.random.normal(0.75, 0.05)
+    #     elif any([conn.preferences[-1] > 0.5 for conn in self.connections]):
+    #         preference = sum([conn.preferences[-1] for conn in self.connections]) / len(self.connections)
+    #     else:
+    #         preference = np.random.normal(0.5, 0.05)
         
-        # Remove the oldest preference and add the new preference
-        self.preferences.pop(0)
-        self.preferences.append(preference)
+    #     # Remove the oldest preference and add the new preference
+    #     self.preferences.pop(0)
+    #    self.preferences.append(preference)
 
     def compute_fitness(self, other_node, all_nodes):
         

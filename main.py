@@ -5,6 +5,8 @@ from voting_decision import VotingDecision
 import random
 import matplotlib.pyplot as plt
 from universe import network_development
+import networkx as nx
+from community import community_louvain
 
 VOTING_METHOD = 'simple_majority'
 AVG_VOTING_RATE = 0.5
@@ -13,7 +15,7 @@ TOKENS_AMOUNT = 1000000
 RANDOM_SEED = 30
 network_update = [0, 0, 0]
 
-num_proposals = 100
+num_proposals = 50
 
 GINI_HISTORY = []
 
@@ -39,6 +41,10 @@ def simulate_voting(universe, network, num_proposals):
     GINI_HISTORY = []
     satisfaction_level_history = {"OC": [], "IP": [], "PT": [], "CA": []}
     proposal_count = 0
+    node_per_group_history = {"OC": [], "IP": [], "PT": [], "CA": []}
+    CLUSTERING = {"num_clusters": [], "modularity": [], "avg_clustering": []}
+    NAKAMOTO_COEFF = []
+
     for i in range(num_proposals):
         proposal_count += 1
         proposal = voting_development.define_proposal(network)
@@ -56,6 +62,15 @@ def simulate_voting(universe, network, num_proposals):
         OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, SATISFACTION_LEVEL = network_development.update_network(
                                                                          universe, network, result, proposal_count)
 
+        group_counts = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
+        for node in network.nodes:
+            group_counts[node.group] += 1
+        
+        node_per_group_history['OC'].append(group_counts['OC'])
+        node_per_group_history['IP'].append(group_counts['IP'])
+        node_per_group_history['PT'].append(group_counts['PT'])
+        node_per_group_history['CA'].append(group_counts['CA'])
+
         satisfaction_level_history["OC"].append(SATISFACTION_LEVEL["OC"])
         satisfaction_level_history["IP"].append(SATISFACTION_LEVEL["IP"])
         satisfaction_level_history["PT"].append(SATISFACTION_LEVEL["PT"])
@@ -65,6 +80,16 @@ def simulate_voting(universe, network, num_proposals):
         #print("SATISFACTION LEVEL GROUP: ", SATISFACTION_LEVEL)
         #network.visualize_network()
 
+        # Clustering metric
+        num_clusters, modularity, avg_clustering_coefficient = compute_clustering_metrics(network)
+        CLUSTERING["num_clusters"].append(num_clusters)
+        CLUSTERING["modularity"].append(modularity)
+        CLUSTERING["avg_clustering"].append(avg_clustering_coefficient)
+
+        # Nakamoto coefficient
+        nakamoto_coefficient = calculate_nakamoto_coefficient([node.wealth for node in network.nodes])
+        NAKAMOTO_COEFF.append(nakamoto_coefficient)
+
         print("Result: ", result)
 
         #update_network(universe, universe.condition)
@@ -73,7 +98,7 @@ def simulate_voting(universe, network, num_proposals):
     plt.title("GINI")
     plt.show()
 
-    plt.plot(OVERALL_SATISFACTION)
+    plt.plot(OVERALL_SATISFACTION[10:])
     plt.title("Overall satisfaction")
     plt.show()
 
@@ -81,16 +106,81 @@ def simulate_voting(universe, network, num_proposals):
     plt.title("Number of participants")
     plt.show()
 
-    plt.plot(satisfaction_level_history["OC"])
-    plt.plot(satisfaction_level_history["IP"])
-    plt.plot(satisfaction_level_history["PT"])
-    plt.plot(satisfaction_level_history["CA"])
+    plt.plot(satisfaction_level_history["OC"][10:])
+    plt.plot(satisfaction_level_history["IP"][10:])
+    plt.plot(satisfaction_level_history["PT"][10:])
+    plt.plot(satisfaction_level_history["CA"][10:])
     plt.title("Satisfaction level Group")
     plt.legend(["OC", "IP", "PT", "CA"])
+    plt.show()
+
+    plt.plot(node_per_group_history["OC"][10:])
+    plt.plot(node_per_group_history["IP"])[10:]
+    plt.plot(node_per_group_history["PT"][10:])
+    plt.plot(node_per_group_history["CA"][10:])
+    plt.title("Number of Participants per Group")
+    plt.legend(["OC", "IP", "PT", "CA"])
+    plt.show()
+
+    plt.plot(CLUSTERING["num_clusters"])
+    plt.title("Number of Clusters")
+    plt.show()
+
+    plt.plot(CLUSTERING["modularity"])
+    plt.title("Modularity")
+    plt.show()
+
+    plt.plot(CLUSTERING["avg_clustering"])
+    plt.title("Average Clustering Coefficient")
+    plt.show()
+
+    plt.plot(NAKAMOTO_COEFF)
+    plt.title("Nakamoto Coefficient")
     plt.show()
     
     #print("GINI HISTORY: ", GINI_HISTORY)
 
+def compute_clustering_metrics(network):
+
+    G = network.get_networkx_graph_noDi()
+
+    partition = community_louvain.best_partition(G)
+    num_clusters = max(partition.values()) + 1
+
+    print("Number of Clusters:", num_clusters)
+
+    modularity = community_louvain.modularity(partition, G)
+    print("Modularity:", modularity)
+
+    avg_clustering_coefficient = nx.average_clustering(G)
+    print("Average Clustering Coefficient:", avg_clustering_coefficient)
+
+    return num_clusters, modularity, avg_clustering_coefficient
+
+def calculate_nakamoto_coefficient(entity_powers):
+    """
+    Calculate the Nakamoto Coefficient.
+    
+    Parameters:
+    - entity_powers (list): A list of the power of each entity in the network.
+    
+    Returns:
+    - int: The Nakamoto Coefficient.
+    """
+    # Step 1: Sort the entities in descending order based on their power
+    sorted_powers = sorted(entity_powers, reverse=True)
+    
+    # Step 2: Calculate the total power of the network
+    total_power = sum(sorted_powers)
+    
+    # Step 3: Find the minimum number of entities to gain control
+    cumulative_power = 0
+    for i, power in enumerate(sorted_powers):
+        cumulative_power += power
+        if cumulative_power > total_power / 2:
+            return i + 1  # We add 1 because list indices are 0-based
+    
+    return None
 
 
 if __name__ == '__main__':

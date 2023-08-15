@@ -66,40 +66,6 @@ def get_network_participants(tokens_amount_initial):
         
     return participants, participants_per_group
 
-# add new participant to the network
-def add_new_participants(universe, new_participant_type):
-    if new_participant_type == "M":
-        new_participant_wealth = 0.057 * universe.tokens_amount
-    elif new_participant_type == "I":
-        new_participant_wealth = 0.093 * universe.tokens_amount
-    elif new_participant_type == "C":
-        new_participant_wealth = 0.005 * universe.tokens_amount
-    else:
-        raise Exception("Invalid participant type")
-    
-    new_participant = Node.Node(type=new_participant_type, community=new_participant_type, incentive_mechanism="constant", 
-                                wealth= new_participant_wealth, reputation=None, incentive_decision="best_interest")
-    universe.participants.append(new_participant)
-    
-    return universe
-
-def remove_participant(universe, type_participant):
-    if type_participant == "M":
-        M_type_participants = [p for p in universe.participants if p.type == "M"]
-        to_be_removed = M_type_participants[0]
-    elif type_participant == "I":
-        I_type_participants = [p for p in universe.participants if p.type == "I"]
-        to_be_removed = I_type_participants[0]
-    elif type_participant == "C":
-        C_type_participants = [p for p in universe.participants if p.type == "C"]
-        to_be_removed = C_type_participants[0]
-    else:
-        raise Exception("Invalid participant type")
-    
-    # remove participant
-    universe.participants.remove(to_be_removed)
-    
-    return universe
 
 def distirbute_tokens_Pareto(tokens_amount, num_participants):
     """

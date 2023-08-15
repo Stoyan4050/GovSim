@@ -67,6 +67,24 @@ class Network:
         
         plt.title("Network Visualization")
         plt.show()
+    
+    def get_networkx_graph_noDi(self):
+        G = nx.Graph()
+        for node in self.nodes:
+            G.add_node(node)
+            for conn in node.connections:
+                G.add_edge(node, conn)
+        
+        return G
+    
+    def get_networkx_graph_Di(self):
+        G = nx.DiGraph()
+        for node in self.nodes:
+            G.add_node(node)
+            for conn in node.connections:
+                G.add_edge(node, conn)
+        
+        return G
 
     def generate_value_from_fitness(self, prob_of_1):
         """
