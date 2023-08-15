@@ -3,11 +3,12 @@ from nodes import Node
 from universe import Network
 import numpy as np
 
+
 # provide initial settings
 def build_universe_network(avg_voting_rate=1):
     initial_token_amount = 1000
     tokens_amount = 10000
-    participants, participants_per_group = get_network_participants(initial_token_amount)
+    participants, participants_per_group, total_token_amount_per_group = get_network_participants(initial_token_amount)
     universe = un.Universe(participants=participants, avg_voting_rate=avg_voting_rate, 
                            tokens_amount=tokens_amount, participants_per_group=participants_per_group)
     
@@ -19,15 +20,15 @@ def build_universe_network(avg_voting_rate=1):
     # add initial connections
     network.update_connections()
 
-    return universe, network
+    return universe, network, total_token_amount_per_group
 
 # generate initial memebers/nodes of the network
 def get_network_participants(tokens_amount_initial):
     
-    initial_n_type_OC = 5 #15
-    initial_n_type_IP = 5 #40
-    initial_n_type_PT = 5 #150
-    initial_n_type_CA = 5 #12
+    initial_n_type_OC = 15 #15
+    initial_n_type_IP = 40 #40
+    initial_n_type_PT = 150 #150
+    initial_n_type_CA = 12 #12
 
     tokens_amount_per_group = {"OC": 0.25 * tokens_amount_initial, "IP": 0.25 * tokens_amount_initial, 
                                "PT": 0.25 * tokens_amount_initial, "CA": 0.25 * tokens_amount_initial}
@@ -63,8 +64,10 @@ def get_network_participants(tokens_amount_initial):
         participant = Node.Node(wealth=participant_wealth, group="CA", incentive_mechanism="constant")
         participants.append(participant)
         participants_per_group["CA"].append(participant)
-        
-    return participants, participants_per_group
+    
+    total_token_amount_per_group = tokens_amount_per_group.copy()
+    
+    return participants, participants_per_group, total_token_amount_per_group
 
 
 def distirbute_tokens_Pareto(tokens_amount, num_participants):
@@ -91,3 +94,4 @@ def distirbute_tokens_Pareto(tokens_amount, num_participants):
     token_distribution = np.round(normalized_values, 4)
     
     return token_distribution.tolist()
+

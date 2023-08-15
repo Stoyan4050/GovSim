@@ -25,19 +25,19 @@ def main():
     random.seed(RANDOM_SEED)
     # Create new universe
 
-    universe, network = build_universe.build_universe_network()
+    universe, network, total_token_amount_per_group = build_universe.build_universe_network()
     print("Participants: ", len(universe.participants))
 
     # Print participants per group
     for key, participants in universe.participants_per_group.items():
         print(f"{key}: {len(participants)} participants")    
         
-    network.visualize_network()
+    #network.visualize_network()
 
-    simulate_voting(universe, network, num_proposals)
+    simulate_voting(universe, network, num_proposals, total_token_amount_per_group)
 
 
-def simulate_voting(universe, network, num_proposals):
+def simulate_voting(universe, network, num_proposals, total_token_amount_per_group):
     GINI_HISTORY = []
     satisfaction_level_history = {"OC": [], "IP": [], "PT": [], "CA": []}
     proposal_count = 0
@@ -60,7 +60,7 @@ def simulate_voting(universe, network, num_proposals):
         # plt.show()
 
         OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, SATISFACTION_LEVEL = network_development.update_network(
-                                                                         universe, network, result, proposal_count)
+                                                                         universe, network, result, proposal_count, total_token_amount_per_group)
 
         group_counts = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
         for node in network.nodes:
@@ -92,7 +92,6 @@ def simulate_voting(universe, network, num_proposals):
 
         print("Result: ", result)
 
-        #update_network(universe, universe.condition)
     network.visualize_network()
     plt.plot(GINI_HISTORY)
     plt.title("GINI")
