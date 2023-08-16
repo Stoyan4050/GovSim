@@ -4,6 +4,8 @@ from voting_decision import VotingDecision
 from collections import Counter
 from voting_incentives import Incentive
 
+VOTING_INCENTIVE_THRESHOLD = 0.5
+
 
 # Voting simulation class
 # Candidates: list of candidates with wights, for voters to select the preferred candidate
@@ -40,12 +42,15 @@ class Voting:
         if len(voters) != 0:
             Exception("Issue with the voting decision")
 
+        Incentive.Incentive(self.network, self.proposal).get_probability_vote()
+
         # Each voter votes for a candidate we save the votes in a list
         for voter in self.network.nodes:
             # Get the incentive decision of the voter
             # Determine if the voter will vote or abstain
-            incentive_decision = Incentive.Incentive(voter, self.universe).get_incentive_decision()
-            
+            incentive_decision = self.get_voting_incentive_decision(voter)
+            #print("Incentive decision: ", incentive_decision)
+
             # Consider the case when voter votes
             if incentive_decision != "abstain":
                 # Count the number of voters that voted
@@ -58,14 +63,16 @@ class Voting:
                     votes_node = quadratic_vote(voter)
                 else:
                     Exception("Voting mechanism not found")
+                
+                # Get the decision of the voter based on the last preference
+                decision = self.get_decision_from_preference_voter(voter)
+
+                for vote in range(int(np.floor(votes_node))):
+                    total_votes.append(decision)
+
             else:
                 abstain+=1
 
-            # Get the decision of the voter based on the last preference
-            decision = self.get_decision_from_preference_voter(voter)
-
-            for vote in range(int(np.floor(votes_node))):
-                total_votes.append(decision)
 
         GINI = self.calculate_GINI([p.wealth for p in self.network.nodes])
         # Get the results of the voting mechanism and the voting decision
@@ -74,7 +81,7 @@ class Voting:
         # Display the results
         self.display_results(voting_outcome, voting_summary, voting_rate=voting_rate)
         
-        return voting_outcome, GINI
+        return voting_outcome, GINI, voting_rate
 
     # Determine the decision of the voter based on the last preference
     def get_decision_from_preference_voter(self, voter):
@@ -133,16 +140,16 @@ class Voting:
         #scale = np.array(range(1, n+1)) / n
         gini = (n + 1 - 2 * np.sum(cum_values) / cum_values[-1]) / n
 
-        print("GINI1: ", (n + 1 - 2 * np.sum(cum_values) / cum_values[-1]) / n)
+        print("GINI: ", (n + 1 - 2 * np.sum(cum_values) / cum_values[-1]) / n)
 
         return gini
-        # mad = np.abs(np.subtract.outer(x, x)).mean()
-        # # Relative mean absolute difference
-        # rmad = mad/np.mean(x)
-        # # Gini coefficient
-        # g = 0.5 * rmad
-        # print("GINI2: ", g)
 
+    def get_voting_incentive_decision(self, voter):
+        #print("Voter: ", voter.group, " - ", voter.probability_vote)
+        if voter.probability_vote > VOTING_INCENTIVE_THRESHOLD:
+            return "vote"
+        else:
+            return "abstain"
 
 # candidates list of 2 options
 # each perferences is integer 0 or 1 to indicate if a group supports the proposal

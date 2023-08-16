@@ -37,6 +37,7 @@ def update_network(universe, network, voting_result, num_proposals, total_token_
     for node in network.nodes:
         if len(node.preferences) >= 10:
             overall_satisfaction += np.mean(node.preferences[-10:])
+            print(node.group, node.preferences[-10:])
 
 
     overall_satisfaction = overall_satisfaction / len(network.nodes)
@@ -121,7 +122,7 @@ def remove_nodes_network_satisfaction(network, universe):
     for node in all_nodes:
         if len(node.preferences) >= 10:
             if np.mean(node.preferences[-10:]) < 0.4:
-                print("Remove node")
+                print("Remove node: ", node.group)
                 network.remove_node(node)
                 universe.tokens_amount -= node.wealth
     return network, universe
@@ -131,7 +132,7 @@ def remove_nodes_from_network_conn(network, universe):
     all_nodes = network.nodes
     for node in all_nodes:
         if len(node.connections) == 0:
-            print("Node removed no connections")
+            print("Node removed no connections: ", node.group)
 
             network.remove_node(node)
             universe.tokens_amount -= node.wealth

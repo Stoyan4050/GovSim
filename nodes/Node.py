@@ -9,6 +9,7 @@ class Node:
         self.connections = []
         self.preferences = []
         self.last_preference = None
+        self.probability_vote = 0
     
     # def get_voting_incentive(self):
     #     return Incentive.Incentive(self).get_voting_incentive()
@@ -35,7 +36,7 @@ class Node:
         if max([len(node.connections) for node in all_nodes]) == 0:
             D = 0
         else:
-            D = len(other_node.connections) / max([len(node.connections) for node in all_nodes])
+            D = len(other_node.connections) / np.max([len(node.connections) for node in all_nodes])
 
         if len(self.preferences) < 10 or len(other_node.preferences) < 10:
             corr = 0

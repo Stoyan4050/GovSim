@@ -113,10 +113,10 @@ def compute_preferences_connections(voter):
         if node.last_preference != None:
             sum_preferences += node.last_preference
             connection_with_preferences += 1
-        else:
-            preference_continuos = generate_truncated_normal(mean=0.25)
-            sum_preferences += preference_continuos
-            connection_with_preferences += 1
+        # else:
+        #     preference_continuos = generate_truncated_normal(mean=0.25)
+        #     sum_preferences += preference_continuos
+        #     connection_with_preferences += 1
             #print("NONE")
     
     #print("A3 ", voter.group, sum_preferences / connection_with_preferences)

@@ -52,4 +52,5 @@ def get_benefiting_group(probs):
     sequence = [0, 0, 0, 0]
     sequence[position_of_one] = 1
     
+    print("Proposal: ", sequence)
     return sequence

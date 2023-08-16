@@ -25,10 +25,10 @@ def build_universe_network(avg_voting_rate=1):
 # generate initial memebers/nodes of the network
 def get_network_participants(tokens_amount_initial):
     
-    initial_n_type_OC = 15 #15
-    initial_n_type_IP = 40 #40
-    initial_n_type_PT = 150 #150
-    initial_n_type_CA = 12 #12
+    initial_n_type_OC = 2 #15
+    initial_n_type_IP = 2 #40
+    initial_n_type_PT = 4 #150
+    initial_n_type_CA = 2 #12
 
     tokens_amount_per_group = {"OC": 0.25 * tokens_amount_initial, "IP": 0.25 * tokens_amount_initial, 
                                "PT": 0.25 * tokens_amount_initial, "CA": 0.25 * tokens_amount_initial}

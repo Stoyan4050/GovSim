@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from universe import network_development
 import networkx as nx
 from community import community_louvain
+from voting_incentives import Incentive
 
 VOTING_METHOD = 'simple_majority'
 AVG_VOTING_RATE = 0.5
@@ -15,7 +16,7 @@ TOKENS_AMOUNT = 1000000
 RANDOM_SEED = 30
 network_update = [0, 0, 0]
 
-num_proposals = 50
+num_proposals = 10
 
 GINI_HISTORY = []
 
@@ -28,6 +29,8 @@ def main():
     universe, network, total_token_amount_per_group = build_universe.build_universe_network()
     print("Participants: ", len(universe.participants))
 
+    # inc = Incentive.Incentive(network)
+    # inc.participation_probability("PT")
     # Print participants per group
     for key, participants in universe.participants_per_group.items():
         print(f"{key}: {len(participants)} participants")    
@@ -44,6 +47,7 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
     node_per_group_history = {"OC": [], "IP": [], "PT": [], "CA": []}
     CLUSTERING = {"num_clusters": [], "modularity": [], "avg_clustering": []}
     NAKAMOTO_COEFF = []
+    VOTING_RATE_HISTORY = []
 
     for i in range(num_proposals):
         proposal_count += 1
@@ -52,20 +56,25 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         # Voting mechanism can be: token_based_vote, quadratic_vote
         voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
 
-        result, GINI = voting.vote()
+        result, GINI, voting_rate = voting.vote()
 
         GINI_HISTORY.append(GINI)
+        VOTING_RATE_HISTORY.append(voting_rate)
 
         # plt.plot(GINI_HISTORY)
         # plt.show()
 
         OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, SATISFACTION_LEVEL = network_development.update_network(
                                                                          universe, network, result, proposal_count, total_token_amount_per_group)
+        
 
         group_counts = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
         for node in network.nodes:
             group_counts[node.group] += 1
         
+        if (group_counts["CA"]) == 0 or (group_counts["PT"]) == 0 or (group_counts["IP"]) == 0 or (group_counts["OC"]) == 0:
+            break
+
         node_per_group_history['OC'].append(group_counts['OC'])
         node_per_group_history['IP'].append(group_counts['IP'])
         node_per_group_history['PT'].append(group_counts['PT'])
@@ -91,6 +100,7 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         NAKAMOTO_COEFF.append(nakamoto_coefficient)
 
         print("Result: ", result)
+        print("Groups: ", group_counts)
 
     network.visualize_network()
     plt.plot(GINI_HISTORY)
@@ -137,6 +147,10 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
     plt.title("Nakamoto Coefficient")
     plt.show()
     
+    plt.plot(VOTING_RATE_HISTORY)
+    plt.title("Voting Rate")
+    plt.show()
+
     #print("GINI HISTORY: ", GINI_HISTORY)
 
 def compute_clustering_metrics(network):
