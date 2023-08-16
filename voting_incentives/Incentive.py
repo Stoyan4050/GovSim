@@ -5,7 +5,7 @@ from scipy.stats import truncnorm
 AVG_PARTICIPATION_RATE = 0.245
 
 class Incentive:
-    def __init__(self, network, proposal, incentive_mechanism=None):
+    def __init__(self, network, proposal, incentive_mechanism="wealth"):
         self.incentive_mechanism = incentive_mechanism
         self.network = network
         self.proposal = proposal
@@ -15,7 +15,7 @@ class Incentive:
 
         if self.incentive_mechanism == "wealth":
             self.wealth_based_prize()
-        elif self.incentive_mechanism == "reputations":
+        elif self.incentive_mechanism == "reputation":
             self.reputation_based_prize()
         elif self.incentive_mechanism == "penalty":
             self.non_voting_penalty()
@@ -23,12 +23,27 @@ class Incentive:
         
     def wealth_based_prize(self):
         max_wealth = np.max([node.wealth for node in self.network.nodes])
+        min_wealth = np.min([node.wealth for node in self.network.nodes])
 
         for node in self.network.nodes:
-            node.probability_vote =+ (node.wealth / max_wealth)
+            prob_vote = node.probability_vote
+            #print("prob_vote: ", prob_vote)
+            node.probability_vote = prob_vote + ((node.wealth - min_wealth) / (max_wealth - min_wealth))
+            #print("new prob_vote: ", node.probability_vote)
+
             if node.probability_vote > 1:
                 node.probability_vote = 1
     
+    def reputation_based_prize(self):
+        max_reputation = np.max([len(node.connections) for node in self.network.nodes])
+        min_reputation = np.min([len(node.connections) for node in self.network.nodes])
+
+        for node in self.network.nodes:
+            prob_vote = node.probability_vote
+            node.probability_vote = prob_vote + (len(node.connections) - min_reputation) / (max_reputation - min_reputation)
+            print("new incentive: ", (len(node.connections) - min_reputation) / (max_reputation - min_reputation))
+            if node.probability_vote > 1:
+                node.probability_vote = 1
 
     def participation_probability(self):
         """

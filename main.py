@@ -13,10 +13,10 @@ VOTING_METHOD = 'simple_majority'
 AVG_VOTING_RATE = 0.5
 WEALTH = 1000000
 TOKENS_AMOUNT = 1000000
-RANDOM_SEED = 30
+RANDOM_SEED = 42
 network_update = [0, 0, 0]
 
-num_proposals = 10
+num_proposals = 20
 
 GINI_HISTORY = []
 
@@ -35,7 +35,7 @@ def main():
     for key, participants in universe.participants_per_group.items():
         print(f"{key}: {len(participants)} participants")    
         
-    #network.visualize_network()
+    network.visualize_network()
 
     simulate_voting(universe, network, num_proposals, total_token_amount_per_group)
 
@@ -54,7 +54,8 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         proposal = voting_development.define_proposal(network)
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
-        voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
+        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
+        voting = Voting.Voting(proposal, network, universe, voting_mechanism="quadratic_vote")
 
         result, GINI, voting_rate = voting.vote()
 
@@ -102,6 +103,57 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         print("Result: ", result)
         print("Groups: ", group_counts)
 
+        print("AVG voting rate: ", np.mean(VOTING_RATE_HISTORY))
+
+        #plot_benchmark_results(node_per_group_history, satisfaction_level_history, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY)
+
+
+    #print("GINI HISTORY: ", GINI_HISTORY)
+
+def compute_clustering_metrics(network):
+
+    G = network.get_networkx_graph_noDi()
+
+    partition = community_louvain.best_partition(G)
+    num_clusters = max(partition.values()) + 1
+
+    print("Number of Clusters:", num_clusters)
+
+    modularity = community_louvain.modularity(partition, G)
+    print("Modularity:", modularity)
+
+    avg_clustering_coefficient = nx.average_clustering(G)
+    print("Average Clustering Coefficient:", avg_clustering_coefficient)
+
+    return num_clusters, modularity, avg_clustering_coefficient
+
+def calculate_nakamoto_coefficient(entity_powers):
+    """
+    Calculate the Nakamoto Coefficient.
+    
+    Parameters:
+    - entity_powers (list): A list of the power of each entity in the network.
+    
+    Returns:
+    - int: The Nakamoto Coefficient.
+    """
+    # Step 1: Sort the entities in descending order based on their power
+    sorted_powers = sorted(entity_powers, reverse=True)
+    
+    # Step 2: Calculate the total power of the network
+    total_power = sum(sorted_powers)
+    
+    # Step 3: Find the minimum number of entities to gain control
+    cumulative_power = 0
+    for i, power in enumerate(sorted_powers):
+        cumulative_power += power
+        if cumulative_power > total_power / 2:
+            return i + 1  # We add 1 because list indices are 0-based
+    
+    return None
+
+def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, 
+                           satisfaction_level_history, node_per_group_history, GINI_HISTORY, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY):
     network.visualize_network()
     plt.plot(GINI_HISTORY)
     plt.title("GINI")
@@ -150,51 +202,6 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
     plt.plot(VOTING_RATE_HISTORY)
     plt.title("Voting Rate")
     plt.show()
-
-    #print("GINI HISTORY: ", GINI_HISTORY)
-
-def compute_clustering_metrics(network):
-
-    G = network.get_networkx_graph_noDi()
-
-    partition = community_louvain.best_partition(G)
-    num_clusters = max(partition.values()) + 1
-
-    print("Number of Clusters:", num_clusters)
-
-    modularity = community_louvain.modularity(partition, G)
-    print("Modularity:", modularity)
-
-    avg_clustering_coefficient = nx.average_clustering(G)
-    print("Average Clustering Coefficient:", avg_clustering_coefficient)
-
-    return num_clusters, modularity, avg_clustering_coefficient
-
-def calculate_nakamoto_coefficient(entity_powers):
-    """
-    Calculate the Nakamoto Coefficient.
-    
-    Parameters:
-    - entity_powers (list): A list of the power of each entity in the network.
-    
-    Returns:
-    - int: The Nakamoto Coefficient.
-    """
-    # Step 1: Sort the entities in descending order based on their power
-    sorted_powers = sorted(entity_powers, reverse=True)
-    
-    # Step 2: Calculate the total power of the network
-    total_power = sum(sorted_powers)
-    
-    # Step 3: Find the minimum number of entities to gain control
-    cumulative_power = 0
-    for i, power in enumerate(sorted_powers):
-        cumulative_power += power
-        if cumulative_power > total_power / 2:
-            return i + 1  # We add 1 because list indices are 0-based
-    
-    return None
-
 
 if __name__ == '__main__':
     main()

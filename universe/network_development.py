@@ -37,7 +37,7 @@ def update_network(universe, network, voting_result, num_proposals, total_token_
     for node in network.nodes:
         if len(node.preferences) >= 10:
             overall_satisfaction += np.mean(node.preferences[-10:])
-            print(node.group, node.preferences[-10:])
+            #print(node.group, node.preferences[-10:])
 
 
     overall_satisfaction = overall_satisfaction / len(network.nodes)

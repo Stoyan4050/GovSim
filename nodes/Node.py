@@ -42,8 +42,8 @@ class Node:
             corr = 0
         else:
             corr = np.abs(np.corrcoef(self.preferences[-10:], other_node.preferences[-10:])[0, 1])
-        #print("Node types: ", self.group, other_node.group)
-        #print("R: ", R, "W: ", W, "D: ", D, "corr: ", corr)
+        # print("Node types: ", self.group, other_node.group)
+        # print("R: ", R, "W: ", W, "D: ", D, "corr: ", corr)
         
         return 0.5 * R + 0.5 * (corr + W + D) / 3
 

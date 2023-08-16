@@ -28,15 +28,15 @@ class Network:
                 #print("Node 1: ", node1.group, "Node 2: ", node2.group)
                 # Compute the fitness between the two nodes
                 fitness_value = node1.compute_fitness(node2, self.nodes)
-                #print("Fitness: ", fitness_value)
+                # print("Fitness: ", fitness_value)
                 
-                # if fitness_value < 0.5:
-                #     connection_decision = 0
-                # else:
-                #     connection_decision = 1
+                if fitness_value < 0.5:
+                    connection_decision = 0
+                else:
+                    connection_decision = 1
 
-                connection_decision = self.generate_value_from_fitness(fitness_value)
-                #print("Obtain value: ", connection_decision)
+                # connection_decision = self.generate_value_from_fitness(fitness_value)
+                # print("Obtain value: ", connection_decision)
 
                 # If the nodes are already connected, check if the connection should be removed
                 if node2 in node1.connections:
