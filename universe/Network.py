@@ -3,6 +3,9 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 from nodes import Node
+import math
+from scipy.stats import truncnorm
+
 
 class Network:
     def __init__(self):
@@ -30,12 +33,14 @@ class Network:
                 fitness_value = node1.compute_fitness(node2, self.nodes)
                 # print("Fitness: ", fitness_value)
                 
-                if fitness_value < 0.5:
-                    connection_decision = 0
-                else:
-                    connection_decision = 1
+                # if fitness_value < 0.5:
+                #     connection_decision = 0
+                # else:
+                #     connection_decision = 1
 
-                # connection_decision = self.generate_value_from_fitness(fitness_value)
+                connection_decision = self.generate_value_from_fitness(fitness_value)
+                #connection_decision = self.generate_value_from_fitness(self.gaussian_probability(fitness_value))
+
                 # print("Obtain value: ", connection_decision)
 
                 # If the nodes are already connected, check if the connection should be removed
@@ -91,5 +96,24 @@ class Network:
         Generate a random value of 1 with a probability of 'prob_of_1' 
         and 0 with a probability of '1 - prob_of_1'.
         """
-        return 1 if random.random() < prob_of_1 else 0
+        #return 1 if random.random() < prob_of_1 else 0
+        return 1 if self.generate_truncated_normal(0.5) < prob_of_1 else 0
+    
+    def gaussian_probability(self, fitness_value, mean=0.5, sigma=0.1):
+        return math.exp(-((fitness_value - mean) ** 2) / (2 * sigma ** 2))
+    
+    def generate_truncated_normal(self, mean, sd=0.1, low=0, upp=1):
+        """
+        Generate a random number from a truncated normal distribution.
 
+        Parameters:
+        - mean (float): Mean of the distribution.
+        - sd (float): Standard deviation.
+        - low (float): Lower bound of the truncation.
+        - upp (float): Upper bound of the truncation.
+
+        Returns:
+        - float: A random number from the truncated normal distribution.
+        """
+        a, b = (low - mean) / sd, (upp - mean) / sd
+        return truncnorm.rvs(a, b, loc=mean, scale=sd)

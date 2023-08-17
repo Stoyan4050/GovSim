@@ -1,5 +1,5 @@
 import numpy as np
-from voting.voting_mechanisms import token_based_vote, quadratic_vote
+from voting.voting_mechanisms import token_based_vote, quadratic_vote, reputation_vote
 from voting_decision import VotingDecision
 from collections import Counter
 from voting_incentives import Incentive
@@ -61,6 +61,8 @@ class Voting:
                     votes_node = token_based_vote(voter)
                 elif self.voting_mechanism == "quadratic_vote":
                     votes_node = quadratic_vote(voter)
+                elif self.voting_mechanism == "reputation_vote":
+                    votes_node = reputation_vote(voter)
                 else:
                     Exception("Voting mechanism not found")
                 

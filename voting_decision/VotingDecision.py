@@ -96,7 +96,7 @@ def compute_preferences_neutral(proposal, voter):
 
     if neutral_flag == 1:
         # Randomly select preference from truncated normal distribution with mean 0.75, interval [0,1]
-        preference_continuos = generate_truncated_normal(mean=0.5)
+        preference_continuos = generate_truncated_normal(mean=0.25)
         print("A2 ", voter.group, preference_continuos)
 
         return preference_continuos
@@ -138,3 +138,4 @@ def generate_truncated_normal(mean, sd=0.1, low=0, upp=1):
     """
     a, b = (low - mean) / sd, (upp - mean) / sd
     return truncnorm.rvs(a, b, loc=mean, scale=sd)
+

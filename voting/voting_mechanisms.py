@@ -8,5 +8,9 @@ def token_based_vote(voter):
 
 def quadratic_vote(voter):
     votes = np.floor(np.sqrt(voter.wealth))
+    return votes
+
+def reputation_vote(voter):
+    votes = len(voter.connections)
 
     return votes

@@ -54,8 +54,9 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         proposal = voting_development.define_proposal(network)
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
-        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
-        voting = Voting.Voting(proposal, network, universe, voting_mechanism="quadratic_vote")
+        voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
+        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="quadratic_vote")
+        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="reputation_vote")
 
         result, GINI, voting_rate = voting.vote()
 
@@ -105,7 +106,8 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
 
         print("AVG voting rate: ", np.mean(VOTING_RATE_HISTORY))
 
-        #plot_benchmark_results(node_per_group_history, satisfaction_level_history, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY)
+    plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, 
+                           satisfaction_level_history, node_per_group_history, GINI_HISTORY, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY)
 
 
     #print("GINI HISTORY: ", GINI_HISTORY)

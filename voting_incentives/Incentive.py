@@ -5,7 +5,7 @@ from scipy.stats import truncnorm
 AVG_PARTICIPATION_RATE = 0.245
 
 class Incentive:
-    def __init__(self, network, proposal, incentive_mechanism="wealth"):
+    def __init__(self, network, proposal, incentive_mechanism=None):
         self.incentive_mechanism = incentive_mechanism
         self.network = network
         self.proposal = proposal
@@ -41,7 +41,7 @@ class Incentive:
         for node in self.network.nodes:
             prob_vote = node.probability_vote
             node.probability_vote = prob_vote + (len(node.connections) - min_reputation) / (max_reputation - min_reputation)
-            print("new incentive: ", (len(node.connections) - min_reputation) / (max_reputation - min_reputation))
+            #print("new incentive: ", (len(node.connections) - min_reputation) / (max_reputation - min_reputation))
             if node.probability_vote > 1:
                 node.probability_vote = 1
 
