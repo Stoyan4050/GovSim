@@ -23,6 +23,8 @@ class Voting:
         abstain = 0
         voters = self.network.nodes
 
+        GINI_VOTERS = []
+
         # We resset the last preferences of the voters
         voters = self.reset_voters_preferences(voters)
 
@@ -68,6 +70,7 @@ class Voting:
                 
                 # Get the decision of the voter based on the last preference
                 decision = self.get_decision_from_preference_voter(voter)
+                GINI_VOTERS.append(np.floor(votes_node))
 
                 for vote in range(int(np.floor(votes_node))):
                     total_votes.append(decision)
@@ -76,7 +79,7 @@ class Voting:
                 abstain+=1
 
 
-        GINI = self.calculate_GINI([p.wealth for p in self.network.nodes])
+        GINI = self.calculate_GINI(GINI_VOTERS)
         # Get the results of the voting mechanism and the voting decision
         voting_outcome, voting_summary = self.get_results(total_votes)
         voting_rate = voted/len(self.network.nodes)

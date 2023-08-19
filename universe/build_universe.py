@@ -27,7 +27,7 @@ def get_network_participants(tokens_amount_initial):
     
     initial_n_type_OC = 15 #15
     initial_n_type_IP = 40 #40
-    initial_n_type_PT = 150 #150
+    initial_n_type_PT = 15 #150
     initial_n_type_CA = 12 #12
 
     tokens_amount_per_group = {"OC": 0.25 * tokens_amount_initial, "IP": 0.25 * tokens_amount_initial, 

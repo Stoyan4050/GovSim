@@ -41,7 +41,10 @@ class Node:
         if len(self.preferences) < 10 or len(other_node.preferences) < 10:
             corr = 0
         else:
-            corr = np.abs(np.corrcoef(self.preferences[-10:], other_node.preferences[-10:])[0, 1])
+            corr = np.corrcoef(self.preferences[-10:], other_node.preferences[-10:])[0, 1]
+            if corr < 0:
+                corr = 0
+                
         # print("Node types: ", self.group, other_node.group)
         # print("R: ", R, "W: ", W, "D: ", D, "corr: ", corr)
         

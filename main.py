@@ -15,8 +15,9 @@ WEALTH = 1000000
 TOKENS_AMOUNT = 1000000
 RANDOM_SEED = 42
 network_update = [0, 0, 0]
+results = []
 
-num_proposals = 20
+num_proposals = 100
 
 GINI_HISTORY = []
 
@@ -45,6 +46,11 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
     satisfaction_level_history = {"OC": [], "IP": [], "PT": [], "CA": []}
     proposal_count = 0
     node_per_group_history = {"OC": [], "IP": [], "PT": [], "CA": []}
+    proposal_per_group = {"OC": [], "IP": [], "PT": [], "CA": []}
+    WEALTH_GROUP = {"OC": [], "IP": [], "PT": [], "CA": []}
+    results = []
+
+
     CLUSTERING = {"num_clusters": [], "modularity": [], "avg_clustering": []}
     NAKAMOTO_COEFF = []
     VOTING_RATE_HISTORY = []
@@ -71,11 +77,19 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         
 
         group_counts = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
+        temp_wealth_group = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
         for node in network.nodes:
-            group_counts[node.group] += 1
-        
+            group_counts[node.group] += 1 
+            temp_wealth_group[node.group] += node.wealth
+
+
         if (group_counts["CA"]) == 0 or (group_counts["PT"]) == 0 or (group_counts["IP"]) == 0 or (group_counts["OC"]) == 0:
             break
+
+        WEALTH_GROUP['OC'].append(temp_wealth_group['OC'])
+        WEALTH_GROUP['IP'].append(temp_wealth_group['IP'])
+        WEALTH_GROUP['PT'].append(temp_wealth_group['PT'])
+        WEALTH_GROUP['CA'].append(temp_wealth_group['CA'])
 
         node_per_group_history['OC'].append(group_counts['OC'])
         node_per_group_history['IP'].append(group_counts['IP'])
@@ -86,6 +100,11 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         satisfaction_level_history["IP"].append(SATISFACTION_LEVEL["IP"])
         satisfaction_level_history["PT"].append(SATISFACTION_LEVEL["PT"])
         satisfaction_level_history["CA"].append(SATISFACTION_LEVEL["CA"])
+
+        proposal_per_group["OC"].append(proposal.OC_preferences)
+        proposal_per_group["IP"].append(proposal.IP_preferences)
+        proposal_per_group["PT"].append(proposal.PT_preferences)
+        proposal_per_group["CA"].append(proposal.CA_preferences)
         #print("OVERALL SATISFACTION: ", OVERALL_SATISFACTION)
         #print("NUMBER OF PARTICIPANTS: ", NUMNBER_PARTICIPANTS)
         #print("SATISFACTION LEVEL GROUP: ", SATISFACTION_LEVEL)
@@ -100,11 +119,58 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         # Nakamoto coefficient
         nakamoto_coefficient = calculate_nakamoto_coefficient([node.wealth for node in network.nodes])
         NAKAMOTO_COEFF.append(nakamoto_coefficient)
+        results.append(result)
 
-        print("Result: ", result)
+        #print("Result: ", result)
         print("Groups: ", group_counts)
 
+        print("SATISFACTION LEVEL OC FINAL: ", satisfaction_level_history["OC"][-1])
+        print("SATISFACTION LEVEL IP FINAL: ", satisfaction_level_history["IP"][-1])
+        print("SATISFACTION LEVEL PT FINAL: ", satisfaction_level_history["PT"][-1])
+        print("SATISFACTION LEVEL CA FINAL: ", satisfaction_level_history["CA"][-1])
+
+        print("SATISFACTION LEVEL OC AVG: ", np.mean(satisfaction_level_history["OC"]))
+        print("SATISFACTION LEVEL IP AVG: ", np.mean(satisfaction_level_history["IP"]))
+        print("SATISFACTION LEVEL PT AVG: ", np.mean(satisfaction_level_history["PT"]))
+        print("SATISFACTION LEVEL CA AVG: ", np.mean(satisfaction_level_history["CA"]))
+
+
+        print("WEALTH OC FINAL: ", WEALTH_GROUP['OC'][-1])
+        print("WEALTH IP FINAL: ", WEALTH_GROUP['IP'][-1])
+        print("WEALTH PT FINAL: ", WEALTH_GROUP['PT'][-1])
+        print("WEALTH CA FINAL: ", WEALTH_GROUP['CA'][-1])
+
+        print("WEALTH OC AVG: ", np.mean(WEALTH_GROUP['OC']))
+        print("WEALTH IP AVG: ", np.mean(WEALTH_GROUP['IP']))
+        print("WEALTH PT AVG: ", np.mean(WEALTH_GROUP['PT']))
+        print("WEALTH CA AVG: ", np.mean(WEALTH_GROUP['CA']))
+
+        print("PROPOSAL OC: ", proposal_per_group["OC"][-1])
+        print("PROPOSAL IP: ", proposal_per_group["IP"][-1])
+        print("PROPOSAL PT: ", proposal_per_group["PT"][-1])
+        print("PROPOSAL CA: ", proposal_per_group["CA"][-1])
+
+        print("PROPOSAL Y: ", results.count("Y"))
+        print("PROPOSAL N: ", results.count("N"))
+
+        print("NAKAMOTO COEFFICIENT FINAL: ", NAKAMOTO_COEFF[-1])
+        print("NAKAMOTO COEFFICIENT AVG: ", np.mean(NAKAMOTO_COEFF))
+        print("NAKAMOTO COEFFICIENT INITIAL: ", NAKAMOTO_COEFF[0])
+
         print("AVG voting rate: ", np.mean(VOTING_RATE_HISTORY))
+
+        print("CLUSTRING NUM CLUSTERS FINAL: ", CLUSTERING["num_clusters"][-1])
+        print("CLUSTRING NUM CLUSTERS AVG: ", np.mean(CLUSTERING["num_clusters"]))
+        print("CLUSTRING NUM CLUSTERS INITIAL: ", CLUSTERING["num_clusters"][0])
+
+        print("CLUSTRING MODULARITY FINAL: ", CLUSTERING["modularity"][-1])
+        print("CLUSTRING MODULARITY AVG: ", np.mean(CLUSTERING["modularity"]))
+        print("CLUSTRING MODULARITY INITIAL: ", CLUSTERING["modularity"][0])
+
+        print("CLUSTRING AVG CLUSTERING FINAL: ", CLUSTERING["avg_clustering"][-1])
+        print("CLUSTRING AVG CLUSTERING AVG: ", np.mean(CLUSTERING["avg_clustering"]))
+        print("CLUSTRING AVG CLUSTERING INITIAL: ", CLUSTERING["avg_clustering"][0])
+
 
     plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, 
                            satisfaction_level_history, node_per_group_history, GINI_HISTORY, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY)
@@ -165,7 +231,7 @@ def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS,
     plt.title("Overall satisfaction")
     plt.show()
 
-    plt.plot(NUMNBER_PARTICIPANTS)
+    plt.plot(NUMNBER_PARTICIPANTS[10:])
     plt.title("Number of participants")
     plt.show()
 
@@ -178,11 +244,14 @@ def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS,
     plt.show()
 
     plt.plot(node_per_group_history["OC"][10:])
-    plt.plot(node_per_group_history["IP"])[10:]
     plt.plot(node_per_group_history["PT"][10:])
     plt.plot(node_per_group_history["CA"][10:])
     plt.title("Number of Participants per Group")
-    plt.legend(["OC", "IP", "PT", "CA"])
+    plt.legend(["OC", "PT", "CA"])
+    plt.show()
+
+    plt.plot(node_per_group_history["IP"])[10:]
+    plt.title("Number of Participants IP")
     plt.show()
 
     plt.plot(CLUSTERING["num_clusters"])
@@ -197,13 +266,13 @@ def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS,
     plt.title("Average Clustering Coefficient")
     plt.show()
 
-    plt.plot(NAKAMOTO_COEFF)
-    plt.title("Nakamoto Coefficient")
-    plt.show()
+    # plt.plot(NAKAMOTO_COEFF)
+    # plt.title("Nakamoto Coefficient")
+    # plt.show()
     
-    plt.plot(VOTING_RATE_HISTORY)
-    plt.title("Voting Rate")
-    plt.show()
+    # plt.plot(VOTING_RATE_HISTORY)
+    # plt.title("Voting Rate")
+    # plt.show()
 
 if __name__ == '__main__':
     main()
