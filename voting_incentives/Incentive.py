@@ -5,7 +5,7 @@ from scipy.stats import truncnorm
 AVG_PARTICIPATION_RATE = 0.245
 
 class Incentive:
-    def __init__(self, network, proposal, incentive_mechanism=None):
+    def __init__(self, network, proposal, incentive_mechanism="reputation"):
         self.incentive_mechanism = incentive_mechanism
         self.network = network
         self.proposal = proposal

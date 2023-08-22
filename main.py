@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from universe import network_development
 import networkx as nx
 from community import community_louvain
+import community
 from voting_incentives import Incentive
 
 VOTING_METHOD = 'simple_majority'
@@ -37,6 +38,8 @@ def main():
         print(f"{key}: {len(participants)} participants")    
         
     network.visualize_network()
+    network.visualize_network2()
+
 
     simulate_voting(universe, network, num_proposals, total_token_amount_per_group)
 
@@ -60,8 +63,8 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         proposal = voting_development.define_proposal(network)
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
-        voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
-        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="quadratic_vote")
+        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
+        voting = Voting.Voting(proposal, network, universe, voting_mechanism="quadratic_vote")
         #voting = Voting.Voting(proposal, network, universe, voting_mechanism="reputation_vote")
 
         result, GINI, voting_rate = voting.vote()
@@ -108,6 +111,7 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         #print("OVERALL SATISFACTION: ", OVERALL_SATISFACTION)
         #print("NUMBER OF PARTICIPANTS: ", NUMNBER_PARTICIPANTS)
         #print("SATISFACTION LEVEL GROUP: ", SATISFACTION_LEVEL)
+
         #network.visualize_network()
 
         # Clustering metric
@@ -122,54 +126,54 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         results.append(result)
 
         #print("Result: ", result)
-        print("Groups: ", group_counts)
+    print("Groups: ", group_counts)
 
-        print("SATISFACTION LEVEL OC FINAL: ", satisfaction_level_history["OC"][-1])
-        print("SATISFACTION LEVEL IP FINAL: ", satisfaction_level_history["IP"][-1])
-        print("SATISFACTION LEVEL PT FINAL: ", satisfaction_level_history["PT"][-1])
-        print("SATISFACTION LEVEL CA FINAL: ", satisfaction_level_history["CA"][-1])
+    print("SATISFACTION LEVEL OC FINAL: ", satisfaction_level_history["OC"][-1])
+    print("SATISFACTION LEVEL IP FINAL: ", satisfaction_level_history["IP"][-1])
+    print("SATISFACTION LEVEL PT FINAL: ", satisfaction_level_history["PT"][-1])
+    print("SATISFACTION LEVEL CA FINAL: ", satisfaction_level_history["CA"][-1])
 
-        print("SATISFACTION LEVEL OC AVG: ", np.mean(satisfaction_level_history["OC"]))
-        print("SATISFACTION LEVEL IP AVG: ", np.mean(satisfaction_level_history["IP"]))
-        print("SATISFACTION LEVEL PT AVG: ", np.mean(satisfaction_level_history["PT"]))
-        print("SATISFACTION LEVEL CA AVG: ", np.mean(satisfaction_level_history["CA"]))
+    print("SATISFACTION LEVEL OC AVG: ", np.mean(satisfaction_level_history["OC"]))
+    print("SATISFACTION LEVEL IP AVG: ", np.mean(satisfaction_level_history["IP"]))
+    print("SATISFACTION LEVEL PT AVG: ", np.mean(satisfaction_level_history["PT"]))
+    print("SATISFACTION LEVEL CA AVG: ", np.mean(satisfaction_level_history["CA"]))
 
 
-        print("WEALTH OC FINAL: ", WEALTH_GROUP['OC'][-1])
-        print("WEALTH IP FINAL: ", WEALTH_GROUP['IP'][-1])
-        print("WEALTH PT FINAL: ", WEALTH_GROUP['PT'][-1])
-        print("WEALTH CA FINAL: ", WEALTH_GROUP['CA'][-1])
+    print("WEALTH OC FINAL: ", WEALTH_GROUP['OC'][-1])
+    print("WEALTH IP FINAL: ", WEALTH_GROUP['IP'][-1])
+    print("WEALTH PT FINAL: ", WEALTH_GROUP['PT'][-1])
+    print("WEALTH CA FINAL: ", WEALTH_GROUP['CA'][-1])
 
-        print("WEALTH OC AVG: ", np.mean(WEALTH_GROUP['OC']))
-        print("WEALTH IP AVG: ", np.mean(WEALTH_GROUP['IP']))
-        print("WEALTH PT AVG: ", np.mean(WEALTH_GROUP['PT']))
-        print("WEALTH CA AVG: ", np.mean(WEALTH_GROUP['CA']))
+    print("WEALTH OC AVG: ", np.mean(WEALTH_GROUP['OC']))
+    print("WEALTH IP AVG: ", np.mean(WEALTH_GROUP['IP']))
+    print("WEALTH PT AVG: ", np.mean(WEALTH_GROUP['PT']))
+    print("WEALTH CA AVG: ", np.mean(WEALTH_GROUP['CA']))
 
-        print("PROPOSAL OC: ", proposal_per_group["OC"][-1])
-        print("PROPOSAL IP: ", proposal_per_group["IP"][-1])
-        print("PROPOSAL PT: ", proposal_per_group["PT"][-1])
-        print("PROPOSAL CA: ", proposal_per_group["CA"][-1])
+    print("PROPOSAL OC: ", np.sum(proposal_per_group["OC"]))
+    print("PROPOSAL IP: ", np.sum(proposal_per_group["IP"]))
+    print("PROPOSAL PT: ", np.sum(proposal_per_group["PT"]))
+    print("PROPOSAL CA: ", np.sum(proposal_per_group["CA"]))
 
-        print("PROPOSAL Y: ", results.count("Y"))
-        print("PROPOSAL N: ", results.count("N"))
+    print("PROPOSAL Y: ", results.count("Y"))
+    print("PROPOSAL N: ", results.count("N"))
 
-        print("NAKAMOTO COEFFICIENT FINAL: ", NAKAMOTO_COEFF[-1])
-        print("NAKAMOTO COEFFICIENT AVG: ", np.mean(NAKAMOTO_COEFF))
-        print("NAKAMOTO COEFFICIENT INITIAL: ", NAKAMOTO_COEFF[0])
+    print("NAKAMOTO COEFFICIENT FINAL: ", NAKAMOTO_COEFF[-1])
+    print("NAKAMOTO COEFFICIENT AVG: ", np.mean(NAKAMOTO_COEFF))
+    print("NAKAMOTO COEFFICIENT INITIAL: ", NAKAMOTO_COEFF[0])
 
-        print("AVG voting rate: ", np.mean(VOTING_RATE_HISTORY))
+    print("AVG voting rate: ", np.mean(VOTING_RATE_HISTORY))
 
-        print("CLUSTRING NUM CLUSTERS FINAL: ", CLUSTERING["num_clusters"][-1])
-        print("CLUSTRING NUM CLUSTERS AVG: ", np.mean(CLUSTERING["num_clusters"]))
-        print("CLUSTRING NUM CLUSTERS INITIAL: ", CLUSTERING["num_clusters"][0])
+    print("CLUSTRING NUM CLUSTERS FINAL: ", CLUSTERING["num_clusters"][-1])
+    print("CLUSTRING NUM CLUSTERS AVG: ", np.mean(CLUSTERING["num_clusters"]))
+    print("CLUSTRING NUM CLUSTERS INITIAL: ", CLUSTERING["num_clusters"][0])
 
-        print("CLUSTRING MODULARITY FINAL: ", CLUSTERING["modularity"][-1])
-        print("CLUSTRING MODULARITY AVG: ", np.mean(CLUSTERING["modularity"]))
-        print("CLUSTRING MODULARITY INITIAL: ", CLUSTERING["modularity"][0])
+    print("CLUSTRING MODULARITY FINAL: ", CLUSTERING["modularity"][-1])
+    print("CLUSTRING MODULARITY AVG: ", np.mean(CLUSTERING["modularity"]))
+    print("CLUSTRING MODULARITY INITIAL: ", CLUSTERING["modularity"][0])
 
-        print("CLUSTRING AVG CLUSTERING FINAL: ", CLUSTERING["avg_clustering"][-1])
-        print("CLUSTRING AVG CLUSTERING AVG: ", np.mean(CLUSTERING["avg_clustering"]))
-        print("CLUSTRING AVG CLUSTERING INITIAL: ", CLUSTERING["avg_clustering"][0])
+    print("CLUSTRING AVG CLUSTERING FINAL: ", CLUSTERING["avg_clustering"][-1])
+    print("CLUSTRING AVG CLUSTERING AVG: ", np.mean(CLUSTERING["avg_clustering"]))
+    print("CLUSTRING AVG CLUSTERING INITIAL: ", CLUSTERING["avg_clustering"][0])
 
 
     plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, 
@@ -185,13 +189,13 @@ def compute_clustering_metrics(network):
     partition = community_louvain.best_partition(G)
     num_clusters = max(partition.values()) + 1
 
-    print("Number of Clusters:", num_clusters)
+    #print("Number of Clusters:", num_clusters)
 
-    modularity = community_louvain.modularity(partition, G)
-    print("Modularity:", modularity)
+    modularity = community.modularity(partition, G)
+    #print("Modularity:", modularity)
 
     avg_clustering_coefficient = nx.average_clustering(G)
-    print("Average Clustering Coefficient:", avg_clustering_coefficient)
+    #print("Average Clustering Coefficient:", avg_clustering_coefficient)
 
     return num_clusters, modularity, avg_clustering_coefficient
 

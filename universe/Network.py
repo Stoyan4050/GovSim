@@ -30,7 +30,10 @@ class Network:
                 
                 #print("Node 1: ", node1.group, "Node 2: ", node2.group)
                 # Compute the fitness between the two nodes
-                fitness_value = node1.compute_fitness(node2, self.nodes)
+                #fitness_value = node1.compute_fitness(node2, self.nodes)
+                fitness_value1 = node1.compute_fitness(node2, self.nodes)
+                fitness_value2 = node2.compute_fitness(node1, self.nodes)
+
                 # print("Fitness: ", fitness_value)
                 
                 # if fitness_value < 0.5:
@@ -38,19 +41,34 @@ class Network:
                 # else:
                 #     connection_decision = 1
 
-                connection_decision = self.generate_value_from_fitness(fitness_value)
+                #connection_decision = self.generate_value_from_fitness(fitness_value)
+                connection_decision1 = self.generate_value_from_fitness(fitness_value1)
+                connection_decision2 = self.generate_value_from_fitness(fitness_value2)
+
                 #connection_decision = self.generate_value_from_fitness(self.gaussian_probability(fitness_value))
 
                 # print("Obtain value: ", connection_decision)
 
                 # If the nodes are already connected, check if the connection should be removed
-                if node2 in node1.connections:
-                    if connection_decision == 0:
+                # if node2 in node1.connections:
+                #     if connection_decision == 0:
+                #         node1.connections.remove(node2)
+                #         #print("Connection removed")
+                # # If the nodes are not connected, check if a connection should be created
+                # elif connection_decision == 1:
+                #     node1.connections.append(node2)
+                    #print("Connection created")
+
+                if node2 in node1.connections and node1 in node2.connections:
+                    if connection_decision1 == 0 or connection_decision2 == 0:
                         node1.connections.remove(node2)
+                        node2.connections.remove(node1)
+
                         #print("Connection removed")
                 # If the nodes are not connected, check if a connection should be created
-                elif connection_decision == 1:
+                elif connection_decision1 == 1 and connection_decision2 == 1:
                     node1.connections.append(node2)
+                    node2.connections.append(node1)
                     #print("Connection created")
 
     def visualize_network(self):
@@ -59,6 +77,36 @@ class Network:
             G.add_node(node)
             for conn in node.connections:
                 G.add_edge(node, conn)
+        
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos, with_labels=False, node_size=700, node_color="skyblue")
+        
+        # Assuming each node has an attribute called 'label'
+        labels = {node: node.group for node in G.nodes()}
+        nx.draw_networkx_labels(G, pos, labels=labels)
+
+        all_edges = G.edges()
+        print("Number of connections: ", len(all_edges))
+        
+        plt.title("Network Visualization")
+        plt.show()
+    
+    def get_networkx_graph_noDi(self):
+        G = nx.Graph()
+        for node in self.nodes:
+            G.add_node(node)
+            for conn in node.connections:
+                G.add_edge(node, conn)
+        
+        return G
+    
+    def visualize_network2(self):
+        G = nx.DiGraph()
+        for node in self.nodes:
+            G.add_node(node)
+            for conn in node.connections:
+                if node in conn.connections:
+                    G.add_edge(node, conn)
         
         pos = nx.spring_layout(G)
         nx.draw(G, pos, with_labels=False, node_size=700, node_color="skyblue")
@@ -96,8 +144,8 @@ class Network:
         Generate a random value of 1 with a probability of 'prob_of_1' 
         and 0 with a probability of '1 - prob_of_1'.
         """
-        #return 1 if random.random() < prob_of_1 else 0
-        return 1 if self.generate_truncated_normal(0.5) < prob_of_1 else 0
+        return 1 if random.random() < prob_of_1 else 0
+        #return 1 if self.generate_truncated_normal(0.5) < prob_of_1 else 0
     
     def gaussian_probability(self, fitness_value, mean=0.5, sigma=0.1):
         return math.exp(-((fitness_value - mean) ** 2) / (2 * sigma ** 2))
