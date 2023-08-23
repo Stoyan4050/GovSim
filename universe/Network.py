@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from nodes import Node
 import math
 from scipy.stats import truncnorm
-
+from pyvis.network import Network as net
 
 class Network:
     def __init__(self):
@@ -78,12 +78,29 @@ class Network:
             for conn in node.connections:
                 G.add_edge(node, conn)
         
+
+
         pos = nx.spring_layout(G)
         nx.draw(G, pos, with_labels=False, node_size=700, node_color="skyblue")
         
         # Assuming each node has an attribute called 'label'
         labels = {node: node.group for node in G.nodes()}
         nx.draw_networkx_labels(G, pos, labels=labels)
+
+        G1 = G.copy()
+        # Convert node IDs to strings
+        G1 = nx.relabel_nodes(G1, lambda x: str(x))
+
+        # Assuming each node has an attribute 'group', set it as the label
+        labels = {node: node_data['group'] for node, node_data in G1.nodes(data=True)}
+        nx.set_node_attributes(G1, labels, 'label')
+
+        g = net(notebook=True)
+        g.from_nx(G1)
+
+        # Display the interactive network
+        g.show('network.html')
+
 
         all_edges = G.edges()
         print("Number of connections: ", len(all_edges))

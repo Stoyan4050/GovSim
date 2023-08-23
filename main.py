@@ -9,6 +9,7 @@ import networkx as nx
 from community import community_louvain
 import community
 from voting_incentives import Incentive
+from pyvis.network import Network
 
 VOTING_METHOD = 'simple_majority'
 AVG_VOTING_RATE = 0.5
@@ -38,7 +39,7 @@ def main():
         print(f"{key}: {len(participants)} participants")    
         
     network.visualize_network()
-    network.visualize_network2()
+    #network.visualize_network2()
 
 
     simulate_voting(universe, network, num_proposals, total_token_amount_per_group)
