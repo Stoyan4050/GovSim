@@ -19,7 +19,7 @@ RANDOM_SEED = 42
 network_update = [0, 0, 0]
 results = []
 
-num_proposals = 100
+num_proposals = 30
 
 GINI_HISTORY = []
 
@@ -64,8 +64,8 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         proposal = voting_development.define_proposal(network)
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
-        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
-        voting = Voting.Voting(proposal, network, universe, voting_mechanism="quadratic_vote")
+        voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
+        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="quadratic_vote")
         #voting = Voting.Voting(proposal, network, universe, voting_mechanism="reputation_vote")
 
         result, GINI, voting_rate = voting.vote()

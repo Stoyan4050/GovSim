@@ -1,11 +1,13 @@
 import numpy as np
 from scipy.stats import truncnorm
+from voting.voting_mechanisms import token_based_vote, quadratic_vote, reputation_vote
+
 
 # constants:
 AVG_PARTICIPATION_RATE = 0.245
 
 class Incentive:
-    def __init__(self, network, proposal, incentive_mechanism="wealth"):
+    def __init__(self, network, proposal, incentive_mechanism=None):
         self.incentive_mechanism = incentive_mechanism
         self.network = network
         self.proposal = proposal
@@ -30,6 +32,20 @@ class Incentive:
             #print("prob_vote: ", prob_vote)
             node.probability_vote = prob_vote + ((node.wealth - min_wealth) / (max_wealth - min_wealth))
             #print("new prob_vote: ", node.probability_vote)
+
+            if node.probability_vote > 1:
+                node.probability_vote = 1
+
+    def non_voting_penalty(self):
+        max_wealth = np.max([node.wealth for node in self.network.nodes])
+        min_wealth = np.min([node.wealth for node in self.network.nodes])
+
+        for node in self.network.nodes:
+            prob_vote = node.probability_vote
+            print("prob_vote: ", prob_vote)
+            print("Node wealth: ", node.wealth)
+            node.probability_vote = prob_vote + (1 - ((node.wealth - min_wealth) / (max_wealth - min_wealth)))
+            print("new prob_vote: ", node.probability_vote)
 
             if node.probability_vote > 1:
                 node.probability_vote = 1

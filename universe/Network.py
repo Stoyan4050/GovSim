@@ -92,7 +92,7 @@ class Network:
         G1 = nx.relabel_nodes(G1, lambda x: str(x))
 
         # Assuming each node has an attribute 'group', set it as the label
-        labels = {node: node_data['group'] for node, node_data in G1.nodes(data=True)}
+        #labels = {node: node_data['group'] for node, node_data in G1.nodes(data=True)}
         nx.set_node_attributes(G1, labels, 'label')
 
         g = net(notebook=True)
