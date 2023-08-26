@@ -61,6 +61,9 @@ class Incentive:
             if node.probability_vote > 1:
                 node.probability_vote = 1
 
+    def penalty_effect_wealth(self, node, total_wealth):
+        node.wealth = node.wealth - (sum_wealth * 0.01 / 100)
+
     def participation_probability(self):
         """
         Calculate the participation probability for each participant.

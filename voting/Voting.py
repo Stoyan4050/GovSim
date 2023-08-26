@@ -44,7 +44,7 @@ class Voting:
         if len(voters) != 0:
             Exception("Issue with the voting decision")
 
-        Incentive.Incentive(self.network, self.proposal).get_probability_vote()
+        incentive = Incentive.Incentive(self.network, self.proposal).get_probability_vote()
 
         # Each voter votes for a candidate we save the votes in a list
         for voter in self.network.nodes:
@@ -77,6 +77,8 @@ class Voting:
 
             else:
                 abstain+=1
+                if incentive.incentive_mechanism == "penalty":
+                   incentive.penalty_effect_wealth(voter, np.sum([node.wealth for node in self.network.nodes]))
 
 
         GINI = self.calculate_GINI(GINI_VOTERS)
