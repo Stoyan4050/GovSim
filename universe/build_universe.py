@@ -1,4 +1,3 @@
-from universe import Universe as un
 from nodes import Node
 from universe import Network
 import numpy as np

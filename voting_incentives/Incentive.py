@@ -7,7 +7,7 @@ from voting.voting_mechanisms import token_based_vote, quadratic_vote, reputatio
 AVG_PARTICIPATION_RATE = 0.245
 
 class Incentive:
-    def __init__(self, network, proposal, incentive_mechanism=None):
+    def __init__(self, network, proposal, incentive_mechanism='penalty'):
         self.incentive_mechanism = incentive_mechanism
         self.network = network
         self.proposal = proposal
@@ -44,7 +44,7 @@ class Incentive:
             prob_vote = node.probability_vote
             print("prob_vote: ", prob_vote)
             print("Node wealth: ", node.wealth)
-            node.probability_vote = prob_vote + (1 - ((node.wealth - min_wealth) / (max_wealth - min_wealth)))
+            node.probability_vote = prob_vote + (1 - ((max_wealth - node.wealth) / (max_wealth - min_wealth)))
             print("new prob_vote: ", node.probability_vote)
 
             if node.probability_vote > 1:
