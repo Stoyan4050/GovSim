@@ -5,7 +5,7 @@ import random
 OVERALL_SATISFACTION = []
 NUMNBER_PARTICIPANTS = []
 
-def update_network(universe, network, voting_result, num_proposals, total_token_amount_per_group):
+def update_network(network, voting_result, num_proposals, total_token_amount_per_group):
     SATISFACTION_LEVEL = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
 
     global OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS
@@ -13,7 +13,6 @@ def update_network(universe, network, voting_result, num_proposals, total_token_
     Update the network after voting.
 
     Parameters:
-    - universe (Universe): The universe object.
     - network (Network): The network object.
     - voting_result (str): The voting result, either "Y" or "N".
     """
@@ -28,10 +27,10 @@ def update_network(universe, network, voting_result, num_proposals, total_token_
     SATISFACTION_LEVEL["PT"] = compute_satisfaction_level_group(network, "PT")
     SATISFACTION_LEVEL["CA"] = compute_satisfaction_level_group(network, "CA")
 
-    network, universe = add_nodes_to_network_satisfaction(universe, network, num_proposals, SATISFACTION_LEVEL, total_token_amount_per_group)
-    network, universe = remove_nodes_network_satisfaction(network, universe)
+    network = add_nodes_to_network_satisfaction(network, num_proposals, SATISFACTION_LEVEL, total_token_amount_per_group)
+    network = remove_nodes_network_satisfaction(network)
     network.update_connections()
-    network, universe = remove_nodes_from_network_conn(network, universe)
+    network = remove_nodes_from_network_conn(network)
 
     overall_satisfaction = 0
     for node in network.nodes:
@@ -73,29 +72,28 @@ def compute_satisfaction_level_group(network, group):
     return P_group
 
 # We add a new node to the network if the satisfaction level of the group is above 0.6
-def add_nodes_to_network_satisfaction(universe, network, num_proposals, SATISFACTION_LEVEL, total_token_amount_per_group): 
+def add_nodes_to_network_satisfaction(network, num_proposals, SATISFACTION_LEVEL, total_token_amount_per_group): 
     if num_proposals >= 10:
         # We add a new participant if the satisfaction level of the group is above 0.6
 
         if SATISFACTION_LEVEL["OC"] > 0.6:
-            network, universe = add_new_node_network(network, universe, "OC", total_token_amount_per_group)
+            network = add_new_node_network(network, "OC", total_token_amount_per_group)
         if SATISFACTION_LEVEL["IP"] > 0.6:
-            network, universe = add_new_node_network(network, universe, "IP", total_token_amount_per_group)
+            network = add_new_node_network(network, "IP", total_token_amount_per_group)
         if SATISFACTION_LEVEL["PT"] > 0.6:
-            network, universe = add_new_node_network(network, universe, "PT", total_token_amount_per_group)
+            network = add_new_node_network(network, "PT", total_token_amount_per_group)
         if SATISFACTION_LEVEL["CA"] > 0.6:
-            network, universe = add_new_node_network(network, universe, "CA", total_token_amount_per_group)   
+            network = add_new_node_network(network, "CA", total_token_amount_per_group)   
 
-    return network, universe
+    return network
 
 # Generate and add node to network
-def add_new_node_network(network, universe, group, total_token_amount_per_group):
+def add_new_node_network(network, group, total_token_amount_per_group):
     """
     Add a new node to the network.
 
     Parameters:
     - network (Network): The network object.
-    - universe (Universe): The universe object.
     - group (str): The group of the new node.
     """
     # def add_new_node(self, group, incentive_mechanism, min_wealth_group, max_wealth_group):
@@ -111,33 +109,33 @@ def add_new_node_network(network, universe, group, total_token_amount_per_group)
     
     # Add the new node to the universe
     network.add_node(new_node)
-    universe.tokens_amount += node_wealth
+    network.tokens_amount += node_wealth
 
     print("Added: ", group, " - ", node_wealth, " - ", len(network.nodes))
-    return network, universe
+    return network
 
 # Remove nodes when not satisfied
-def remove_nodes_network_satisfaction(network, universe):
+def remove_nodes_network_satisfaction(network):
     all_nodes = network.nodes
     for node in all_nodes:
         if len(node.preferences) >= 10:
             if np.mean(node.preferences[-10:]) < 0.4:
                 print("Remove node: ", node.group)
                 network.remove_node(node)
-                universe.tokens_amount -= node.wealth
-    return network, universe
+                network.tokens_amount -= node.wealth
+    return network
 
 # Remove nodes from the network if they have no connections
-def remove_nodes_from_network_conn(network, universe):
+def remove_nodes_from_network_conn(network):
     all_nodes = network.nodes
     for node in all_nodes:
         if len(node.connections) == 0:
             print("Node removed no connections: ", node.group)
 
             network.remove_node(node)
-            universe.tokens_amount -= node.wealth
+            network.tokens_amount -= node.wealth
    
-    return network, universe
+    return network
 
 def random_wealth_value(min_wealth, max_wealth):
     """

@@ -62,7 +62,8 @@ class Incentive:
                 node.probability_vote = 1
 
     def penalty_effect_wealth(self, node, total_wealth):
-        node.wealth = node.wealth - (sum_wealth * 0.01 / 100)
+        node.wealth = node.wealth - (total_wealth * 0.01 / 100)
+        self.network.tokens_amount -= (total_wealth * 0.01 / 100)
 
     def participation_probability(self):
         """

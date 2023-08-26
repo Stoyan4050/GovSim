@@ -8,8 +8,10 @@ from scipy.stats import truncnorm
 from pyvis.network import Network as net
 
 class Network:
-    def __init__(self):
+    def __init__(self, tokens_amount):
         self.nodes = []
+        self.avg_voting_rate = []
+        self.tokens_amount = tokens_amount
 
     def add_node(self, node):
         self.nodes.append(node)

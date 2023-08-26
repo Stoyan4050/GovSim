@@ -10,11 +10,10 @@ VOTING_INCENTIVE_THRESHOLD = 0.5
 # Voting simulation class
 # Candidates: list of candidates with wights, for voters to select the preferred candidate
 class Voting:
-    def __init__(self, proposal, network, universe, voting_mechanism):
+    def __init__(self, proposal, network, voting_mechanism):
         self.proposal = proposal
         self.network = network
         self.voting_mechanism = voting_mechanism
-        self.universe = universe
 
     def vote(self):
         # Each voter votes for a candidate we save the votes in a list
@@ -44,7 +43,8 @@ class Voting:
         if len(voters) != 0:
             Exception("Issue with the voting decision")
 
-        incentive = Incentive.Incentive(self.network, self.proposal).get_probability_vote()
+        incentive = Incentive.Incentive(self.network, self.proposal)
+        incentive.get_probability_vote()
 
         # Each voter votes for a candidate we save the votes in a list
         for voter in self.network.nodes:

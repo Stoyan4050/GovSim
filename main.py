@@ -29,23 +29,20 @@ def main():
     random.seed(RANDOM_SEED)
     # Create new universe
 
-    universe, network, total_token_amount_per_group = build_universe.build_universe_network()
-    print("Participants: ", len(universe.participants))
+    network, total_token_amount_per_group, participants_per_group = build_universe.build_universe_network()
 
-    # inc = Incentive.Incentive(network)
-    # inc.participation_probability("PT")
-    # Print participants per group
-    for key, participants in universe.participants_per_group.items():
-        print(f"{key}: {len(participants)} participants")    
+    print("Participants: ", len(network.nodes))
+    print("Participants per group - OC: ", len(participants_per_group["OC"]), " IP: ", len(participants_per_group["IP"]), 
+          " PT: ", len(participants_per_group["PT"]), " CA: ", len(participants_per_group["CA"]))
         
     network.visualize_network()
     #network.visualize_network2()
 
 
-    simulate_voting(universe, network, num_proposals, total_token_amount_per_group)
+    simulate_voting(network, num_proposals, total_token_amount_per_group)
 
 
-def simulate_voting(universe, network, num_proposals, total_token_amount_per_group):
+def simulate_voting(network, num_proposals, total_token_amount_per_group):
     GINI_HISTORY = []
     satisfaction_level_history = {"OC": [], "IP": [], "PT": [], "CA": []}
     proposal_count = 0
@@ -64,9 +61,9 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         proposal = voting_development.define_proposal(network)
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
-        voting = Voting.Voting(proposal, network, universe, voting_mechanism="token_based_vote")
-        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="quadratic_vote")
-        #voting = Voting.Voting(proposal, network, universe, voting_mechanism="reputation_vote")
+        voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
+        #voting = Voting.Voting(proposal, network, voting_mechanism="quadratic_vote")
+        #voting = Voting.Voting(proposal, network, voting_mechanism="reputation_vote")
 
         result, GINI, voting_rate = voting.vote()
 
@@ -77,7 +74,7 @@ def simulate_voting(universe, network, num_proposals, total_token_amount_per_gro
         # plt.show()
 
         OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, SATISFACTION_LEVEL = network_development.update_network(
-                                                                         universe, network, result, proposal_count, total_token_amount_per_group)
+                                                                        network, result, proposal_count, total_token_amount_per_group)
         
 
         group_counts = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
