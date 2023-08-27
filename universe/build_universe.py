@@ -4,8 +4,7 @@ import numpy as np
 
 
 # provide initial settings
-def build_universe_network():
-    tokens_amount = 1000
+def build_universe_network(tokens_amount = 10000):
     participants, participants_per_group, total_token_amount_per_group = get_network_participants(tokens_amount)
     # universe = un.Universe(participants=participants, avg_voting_rate=avg_voting_rate, 
     #                        tokens_amount=tokens_amount, participants_per_group=participants_per_group)

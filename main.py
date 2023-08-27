@@ -11,15 +11,11 @@ import community
 from voting_incentives import Incentive
 from pyvis.network import Network
 
-VOTING_METHOD = 'simple_majority'
-AVG_VOTING_RATE = 0.5
-WEALTH = 1000000
-TOKENS_AMOUNT = 1000000
+TOKENS_AMOUNT = 10000
 RANDOM_SEED = 42
-network_update = [0, 0, 0]
 results = []
 
-num_proposals = 30
+num_proposals = 200
 
 GINI_HISTORY = []
 
@@ -29,7 +25,7 @@ def main():
     random.seed(RANDOM_SEED)
     # Create new universe
 
-    network, total_token_amount_per_group, participants_per_group = build_universe.build_universe_network()
+    network, total_token_amount_per_group, participants_per_group = build_universe.build_universe_network(TOKENS_AMOUNT)
 
     print("Participants: ", len(network.nodes))
     print("Participants per group - OC: ", len(participants_per_group["OC"]), " IP: ", len(participants_per_group["IP"]), 
@@ -61,9 +57,9 @@ def simulate_voting(network, num_proposals, total_token_amount_per_group):
         proposal = voting_development.define_proposal(network)
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
-        voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
+        #voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
         #voting = Voting.Voting(proposal, network, voting_mechanism="quadratic_vote")
-        #voting = Voting.Voting(proposal, network, voting_mechanism="reputation_vote")
+        voting = Voting.Voting(proposal, network, voting_mechanism="reputation_vote")
 
         result, GINI, voting_rate = voting.vote()
 
@@ -173,12 +169,14 @@ def simulate_voting(network, num_proposals, total_token_amount_per_group):
     print("CLUSTRING AVG CLUSTERING AVG: ", np.mean(CLUSTERING["avg_clustering"]))
     print("CLUSTRING AVG CLUSTERING INITIAL: ", CLUSTERING["avg_clustering"][0])
 
+    print("AVG GINI HISTORY: ", np.mean(GINI_HISTORY))
+
+
 
     plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, 
                            satisfaction_level_history, node_per_group_history, GINI_HISTORY, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY)
 
 
-    #print("GINI HISTORY: ", GINI_HISTORY)
 
 def compute_clustering_metrics(network):
 
@@ -224,7 +222,17 @@ def calculate_nakamoto_coefficient(entity_powers):
 
 def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, 
                            satisfaction_level_history, node_per_group_history, GINI_HISTORY, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY):
+    
+    print("NUM PARTICIP: ", NUMNBER_PARTICIPANTS)
+    print("OVR SATISFACTION: ", OVERALL_SATISFACTION)
+    MA10 = moving_average_rate(NUMNBER_PARTICIPANTS)
+    print("MA10: ", MA10)
+    
     network.visualize_network()
+    plt.plot(MA10)
+    plt.title("MA10")
+    plt.show()
+
     plt.plot(GINI_HISTORY)
     plt.title("GINI")
     plt.show()
@@ -245,16 +253,16 @@ def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS,
     plt.legend(["OC", "IP", "PT", "CA"])
     plt.show()
 
-    plt.plot(node_per_group_history["OC"][10:])
-    plt.plot(node_per_group_history["PT"][10:])
-    plt.plot(node_per_group_history["CA"][10:])
-    plt.title("Number of Participants per Group")
-    plt.legend(["OC", "PT", "CA"])
-    plt.show()
+    # plt.plot(node_per_group_history["OC"][10:])
+    # plt.plot(node_per_group_history["PT"][10:])
+    # plt.plot(node_per_group_history["CA"][10:])
+    # plt.title("Number of Participants per Group")
+    # plt.legend(["OC", "PT", "CA"])
+    # plt.show()
 
-    plt.plot(node_per_group_history["IP"])[10:]
-    plt.title("Number of Participants IP")
-    plt.show()
+    # plt.plot(node_per_group_history["IP"])[10:]
+    # plt.title("Number of Participants IP")
+    # plt.show()
 
     plt.plot(CLUSTERING["num_clusters"])
     plt.title("Number of Clusters")
@@ -268,6 +276,7 @@ def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS,
     plt.title("Average Clustering Coefficient")
     plt.show()
 
+
     # plt.plot(NAKAMOTO_COEFF)
     # plt.title("Nakamoto Coefficient")
     # plt.show()
@@ -275,6 +284,30 @@ def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS,
     # plt.plot(VOTING_RATE_HISTORY)
     # plt.title("Voting Rate")
     # plt.show()
+
+
+def moving_average_rate(participants):
+    """
+    Calculates the moving average of changes in the number of participants 
+    from the last ten voting proposals.
+
+    Parameters:
+    - changes: A list containing the change in the number of participants for each day.
+
+    Returns:
+    - rate_10: A list of moving averages from the last ten voting proposals.
+    """
+    changes = [participants[i] - participants[i-1] for i in range(1, len(participants))]
+
+    rate_10 = []
+
+    for i in range(len(changes)):
+        if i < 9:  # Skip the first 9 days since we don't have 10 days of data yet
+            rate_10.append(None)
+        else:
+            rate_10.append(sum(changes[i-9:i+1]) / 10)
+
+    return rate_10
 
 if __name__ == '__main__':
     main()

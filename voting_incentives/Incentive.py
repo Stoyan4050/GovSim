@@ -7,7 +7,7 @@ from voting.voting_mechanisms import token_based_vote, quadratic_vote, reputatio
 AVG_PARTICIPATION_RATE = 0.245
 
 class Incentive:
-    def __init__(self, network, proposal, incentive_mechanism='penalty'):
+    def __init__(self, network, proposal, incentive_mechanism="penalty"):
         self.incentive_mechanism = incentive_mechanism
         self.network = network
         self.proposal = proposal
@@ -40,11 +40,16 @@ class Incentive:
         max_wealth = np.max([node.wealth for node in self.network.nodes])
         min_wealth = np.min([node.wealth for node in self.network.nodes])
 
+        print("MAX WEALTH: ", max_wealth)
+        print("MIN WEALTH: ", min_wealth)
+
         for node in self.network.nodes:
             prob_vote = node.probability_vote
             print("prob_vote: ", prob_vote)
             print("Node wealth: ", node.wealth)
-            node.probability_vote = prob_vote + (1 - ((max_wealth - node.wealth) / (max_wealth - min_wealth)))
+            #node.probability_vote = prob_vote + 0.5*np.log(1 + ((max_wealth - node.wealth) / (max_wealth - min_wealth)))
+            node.probability_vote = prob_vote + 0.24*np.exp(-((node.wealth - min_wealth) / (max_wealth - min_wealth)))
+
             print("new prob_vote: ", node.probability_vote)
 
             if node.probability_vote > 1:
@@ -62,8 +67,10 @@ class Incentive:
                 node.probability_vote = 1
 
     def penalty_effect_wealth(self, node, total_wealth):
-        node.wealth = node.wealth - (total_wealth * 0.01 / 100)
-        self.network.tokens_amount -= (total_wealth * 0.01 / 100)
+        if node.wealth > total_wealth * 0.01 / 100:
+            node.wealth = node.wealth - (total_wealth * 0.01 / 100)
+            self.network.tokens_amount -= (total_wealth * 0.01 / 100)
+            print("Penalty: ", total_wealth * 0.01 / 100)
 
     def participation_probability(self):
         """
