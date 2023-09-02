@@ -54,12 +54,13 @@ def simulate_voting(network, num_proposals, total_token_amount_per_group):
 
     for i in range(num_proposals):
         proposal_count += 1
+        print("Proposal: ", proposal_count)
         proposal = voting_development.define_proposal(network)
 
         # Voting mechanism can be: token_based_vote, quadratic_vote
-        #voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
+        voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
         #voting = Voting.Voting(proposal, network, voting_mechanism="quadratic_vote")
-        voting = Voting.Voting(proposal, network, voting_mechanism="reputation_vote")
+        #voting = Voting.Voting(proposal, network, voting_mechanism="reputation_vote")
 
         result, GINI, voting_rate = voting.vote()
 

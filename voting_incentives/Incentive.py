@@ -45,12 +45,16 @@ class Incentive:
 
         for node in self.network.nodes:
             prob_vote = node.probability_vote
-            print("prob_vote: ", prob_vote)
-            print("Node wealth: ", node.wealth)
+            #print("prob_vote: ", prob_vote)
+            #print("Node wealth: ", node.wealth)
             #node.probability_vote = prob_vote + 0.5*np.log(1 + ((max_wealth - node.wealth) / (max_wealth - min_wealth)))
-            node.probability_vote = prob_vote + 0.24*np.exp(-((node.wealth - min_wealth) / (max_wealth - min_wealth)))
+            #node.probability_vote = prob_vote + (1-prob_vote)*np.exp(-((max_wealth - node.wealth) / (max_wealth - min_wealth)))
+            #node.probability_vote = prob_vote + ((max_wealth - node.wealth) / (max_wealth - min_wealth))
 
-            print("new prob_vote: ", node.probability_vote)
+            node.probability_vote = prob_vote + ((node.wealth - min_wealth) / (max_wealth - min_wealth))
+
+
+            #print("new prob_vote: ", node.probability_vote)
 
             if node.probability_vote > 1:
                 node.probability_vote = 1
@@ -62,15 +66,26 @@ class Incentive:
         for node in self.network.nodes:
             prob_vote = node.probability_vote
             node.probability_vote = prob_vote + (len(node.connections) - min_reputation) / (max_reputation - min_reputation)
+            #node.probability_vote = prob_vote + (1-prob_vote)*np.exp(- ((len(node.connections) - min_reputation) / (max_reputation - min_reputation)))
             #print("new incentive: ", (len(node.connections) - min_reputation) / (max_reputation - min_reputation))
             if node.probability_vote > 1:
                 node.probability_vote = 1
 
     def penalty_effect_wealth(self, node, total_wealth):
-        if node.wealth > total_wealth * 0.01 / 100:
-            node.wealth = node.wealth - (total_wealth * 0.01 / 100)
-            self.network.tokens_amount -= (total_wealth * 0.01 / 100)
-            print("Penalty: ", total_wealth * 0.01 / 100)
+        # if node.wealth > total_wealth * 0.01 / 100:
+        #     node.wealth = node.wealth - (total_wealth * 0.01 / 100)
+        #     self.network.tokens_amount -= (total_wealth * 0.01 / 100)
+        #     print("Penalty: ", total_wealth * 0.01 / 100)
+        
+        if node.wealth >0.2*node.wealth:
+            w = node.wealth
+            node.wealth = w - 0.2*w
+            self.network.tokens_amount -= 0.2*w
+            #print("Penalty: ", 0.2*w)
+        #     node.wealth = node.wealth - (total_wealth * 0.01 / 100)
+        #     self.network.tokens_amount -= (total_wealth * 0.01 / 100)
+        #     print("Penalty: ", total_wealth * 0.01 / 100)
+        
 
     def participation_probability(self):
         """
