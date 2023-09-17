@@ -3,30 +3,34 @@ from universe import Network
 import numpy as np
 
 
-# provide initial settings
+# Provide initial settings
+# Set initila tokens amount
 def build_universe_network(tokens_amount = 10000):
+    # Get initial participants
     participants, participants_per_group, total_token_amount_per_group = get_network_participants(tokens_amount)
-    # universe = un.Universe(participants=participants, avg_voting_rate=avg_voting_rate, 
-    #                        tokens_amount=tokens_amount, participants_per_group=participants_per_group)
+
     
-    #build initila network
+    # Build initial network
     network = Network.Network(tokens_amount)
     for participant in participants:
         network.add_node(participant)
     
-    # add initial connections
+    # Add initial connections
     network.update_connections()
 
     return network, total_token_amount_per_group, participants_per_group
 
-# generate initial memebers/nodes of the network
+# Generate initial memebers/nodes of the network
 def get_network_participants(tokens_amount_initial):
     
-    initial_n_type_OC = 15 #15
-    initial_n_type_IP = 40 #40
-    initial_n_type_PT = 15 #150
-    initial_n_type_CA = 12 #12
+    # Set initial number of participants per group
+    initial_n_type_OC = 15
+    initial_n_type_IP = 40
+    initial_n_type_PT = 150
+    initial_n_type_CA = 12
 
+    # Set initial tokens amount per group
+    # Split the tokens evenly among the groups
     tokens_amount_per_group = {"OC": 0.25 * tokens_amount_initial, "IP": 0.25 * tokens_amount_initial, 
                                "PT": 0.25 * tokens_amount_initial, "CA": 0.25 * tokens_amount_initial}
     
@@ -34,6 +38,7 @@ def get_network_participants(tokens_amount_initial):
 
     participants = []
 
+    # Distirbute tokens for each memeber of the OC group using the Pareto distribution (80-20 rule)
     tokens_distribution_OC = distirbute_tokens_Pareto(tokens_amount_per_group["OC"], initial_n_type_OC)
     for i in range(initial_n_type_OC):
         participant_wealth = tokens_distribution_OC[i]
@@ -41,6 +46,7 @@ def get_network_participants(tokens_amount_initial):
         participants.append(participant)
         participants_per_group["OC"].append(participant)
 
+    # Distirbute tokens for each memeber of the IP group using the Pareto distribution (80-20 rule)
     tokens_distribution_IP = distirbute_tokens_Pareto(tokens_amount_per_group["IP"], initial_n_type_IP)
     for i in range(initial_n_type_IP):
         participant_wealth = tokens_distribution_IP[i]
@@ -48,13 +54,15 @@ def get_network_participants(tokens_amount_initial):
         participants.append(participant)
         participants_per_group["IP"].append(participant)
     
+    # Distirbute tokens for each memeber of the PT group using the Pareto distribution (80-20 rule)
     tokens_distribution_PT = distirbute_tokens_Pareto(tokens_amount_per_group["PT"], initial_n_type_PT)
     for i in range(initial_n_type_PT):
         participant_wealth = tokens_distribution_PT[i]
         participant = Node.Node(wealth=participant_wealth, group="PT", incentive_mechanism="constant")
         participants.append(participant)
         participants_per_group["PT"].append(participant)
-
+    
+    # Distirbute tokens for each memeber of the CA group using the Pareto distribution (80-20 rule)
     tokens_distribution_CA = distirbute_tokens_Pareto(tokens_amount_per_group["CA"], initial_n_type_CA)
     for i in range(initial_n_type_CA):
         participant_wealth = tokens_distribution_CA[i]
@@ -66,7 +74,7 @@ def get_network_participants(tokens_amount_initial):
     
     return participants, participants_per_group, total_token_amount_per_group
 
-
+# Generate Pareto distributed values
 def distirbute_tokens_Pareto(tokens_amount, num_participants):
     """
     Distribute tokens among participants following the Pareto distribution.

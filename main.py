@@ -15,7 +15,7 @@ TOKENS_AMOUNT = 10000
 RANDOM_SEED = 42
 results = []
 
-num_proposals = 200
+num_proposals = 100
 
 GINI_HISTORY = []
 
@@ -30,15 +30,15 @@ def main():
     print("Participants: ", len(network.nodes))
     print("Participants per group - OC: ", len(participants_per_group["OC"]), " IP: ", len(participants_per_group["IP"]), 
           " PT: ", len(participants_per_group["PT"]), " CA: ", len(participants_per_group["CA"]))
-        
+    
+    # Visualize the network
     network.visualize_network()
-    #network.visualize_network2()
-
 
     simulate_voting(network, num_proposals, total_token_amount_per_group)
 
-
+# Simulate voting
 def simulate_voting(network, num_proposals, total_token_amount_per_group):
+    # Initialize variables to store the results
     GINI_HISTORY = []
     satisfaction_level_history = {"OC": [], "IP": [], "PT": [], "CA": []}
     proposal_count = 0
@@ -52,35 +52,36 @@ def simulate_voting(network, num_proposals, total_token_amount_per_group):
     NAKAMOTO_COEFF = []
     VOTING_RATE_HISTORY = []
 
+    # Iterate over all voting proposals
     for i in range(num_proposals):
         proposal_count += 1
         print("Proposal: ", proposal_count)
         proposal = voting_development.define_proposal(network)
 
-        # Voting mechanism can be: token_based_vote, quadratic_vote
-        voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
-        #voting = Voting.Voting(proposal, network, voting_mechanism="quadratic_vote")
-        #voting = Voting.Voting(proposal, network, voting_mechanism="reputation_vote")
+        # Voting mechanism can be: token_based_vote, quadratic_vote, reputation_vote
 
+        #voting = Voting.Voting(proposal, network, voting_mechanism="token_based_vote")
+        #voting = Voting.Voting(proposal, network, voting_mechanism="quadratic_vote")
+        voting = Voting.Voting(proposal, network, voting_mechanism="reputation_vote")
+
+        # Get results from voting
         result, GINI, voting_rate = voting.vote()
 
+        # Update benchmark variables
         GINI_HISTORY.append(GINI)
         VOTING_RATE_HISTORY.append(voting_rate)
 
-        # plt.plot(GINI_HISTORY)
-        # plt.show()
-
         OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, SATISFACTION_LEVEL = network_development.update_network(
                                                                         network, result, proposal_count, total_token_amount_per_group)
-        
 
+        # Update variables that keep trach of changes in token holdings and number of participants        
         group_counts = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
         temp_wealth_group = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
         for node in network.nodes:
             group_counts[node.group] += 1 
             temp_wealth_group[node.group] += node.wealth
 
-
+        # Break if one of the groups is empty
         if (group_counts["CA"]) == 0 or (group_counts["PT"]) == 0 or (group_counts["IP"]) == 0 or (group_counts["OC"]) == 0:
             break
 
@@ -103,11 +104,6 @@ def simulate_voting(network, num_proposals, total_token_amount_per_group):
         proposal_per_group["IP"].append(proposal.IP_preferences)
         proposal_per_group["PT"].append(proposal.PT_preferences)
         proposal_per_group["CA"].append(proposal.CA_preferences)
-        #print("OVERALL SATISFACTION: ", OVERALL_SATISFACTION)
-        #print("NUMBER OF PARTICIPANTS: ", NUMNBER_PARTICIPANTS)
-        #print("SATISFACTION LEVEL GROUP: ", SATISFACTION_LEVEL)
-
-        #network.visualize_network()
 
         # Clustering metric
         num_clusters, modularity, avg_clustering_coefficient = compute_clustering_metrics(network)
@@ -120,9 +116,14 @@ def simulate_voting(network, num_proposals, total_token_amount_per_group):
         NAKAMOTO_COEFF.append(nakamoto_coefficient)
         results.append(result)
 
-        #print("Result: ", result)
+
+    # Print group counts
     print("Groups: ", group_counts)
 
+    # Print GINI coefficient
+    print("GINI: ", GINI_HISTORY)
+
+    # Print results
     print("SATISFACTION LEVEL OC FINAL: ", satisfaction_level_history["OC"][-1])
     print("SATISFACTION LEVEL IP FINAL: ", satisfaction_level_history["IP"][-1])
     print("SATISFACTION LEVEL PT FINAL: ", satisfaction_level_history["PT"][-1])
@@ -178,24 +179,26 @@ def simulate_voting(network, num_proposals, total_token_amount_per_group):
                            satisfaction_level_history, node_per_group_history, GINI_HISTORY, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY)
 
 
-
+# Compute clustering metrics
 def compute_clustering_metrics(network):
 
     G = network.get_networkx_graph_noDi()
 
+    # Compute the best partition
     partition = community_louvain.best_partition(G)
+    # Count the number of clusters
     num_clusters = max(partition.values()) + 1
 
-    #print("Number of Clusters:", num_clusters)
-
+    # Compute modularity
     modularity = community.modularity(partition, G)
-    #print("Modularity:", modularity)
 
+    # Compute average clustering coefficient
     avg_clustering_coefficient = nx.average_clustering(G)
-    #print("Average Clustering Coefficient:", avg_clustering_coefficient)
 
     return num_clusters, modularity, avg_clustering_coefficient
 
+
+# Calculate the Nakamoto Coefficient
 def calculate_nakamoto_coefficient(entity_powers):
     """
     Calculate the Nakamoto Coefficient.
@@ -206,13 +209,13 @@ def calculate_nakamoto_coefficient(entity_powers):
     Returns:
     - int: The Nakamoto Coefficient.
     """
-    # Step 1: Sort the entities in descending order based on their power
+    # Sort the entities in descending order based on their power
     sorted_powers = sorted(entity_powers, reverse=True)
     
-    # Step 2: Calculate the total power of the network
+    # Calculate the total power of the network
     total_power = sum(sorted_powers)
     
-    # Step 3: Find the minimum number of entities to gain control
+    # Find the minimum number of entities to gain control
     cumulative_power = 0
     for i, power in enumerate(sorted_powers):
         cumulative_power += power
@@ -221,6 +224,7 @@ def calculate_nakamoto_coefficient(entity_powers):
     
     return None
 
+# Plot benchmark results
 def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, 
                            satisfaction_level_history, node_per_group_history, GINI_HISTORY, CLUSTERING, NAKAMOTO_COEFF, VOTING_RATE_HISTORY):
     
@@ -230,6 +234,7 @@ def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS,
     print("MA10: ", MA10)
     
     network.visualize_network()
+
     plt.plot(MA10)
     plt.title("MA10")
     plt.show()
@@ -277,23 +282,24 @@ def plot_benchmark_results(network, OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS,
     plt.title("Average Clustering Coefficient")
     plt.show()
 
-
-    # plt.plot(NAKAMOTO_COEFF)
-    # plt.title("Nakamoto Coefficient")
-    # plt.show()
+    plt.plot(NAKAMOTO_COEFF)
+    plt.title("Nakamoto Coefficient")
+    plt.show()
     
-    # plt.plot(VOTING_RATE_HISTORY)
-    # plt.title("Voting Rate")
-    # plt.show()
+    plt.plot(VOTING_RATE_HISTORY)
+    plt.title("Voting Rate")
+    plt.show()
 
 
+
+# Calculate the moving average of changes in the number of participants for the last ten voting proposals
 def moving_average_rate(participants):
     """
     Calculates the moving average of changes in the number of participants 
     from the last ten voting proposals.
 
     Parameters:
-    - changes: A list containing the change in the number of participants for each day.
+    - changes: A list containing the change in the number of participants for each iterations.
 
     Returns:
     - rate_10: A list of moving averages from the last ten voting proposals.
@@ -303,7 +309,7 @@ def moving_average_rate(participants):
     rate_10 = []
 
     for i in range(len(changes)):
-        if i < 9:  # Skip the first 9 days since we don't have 10 days of data yet
+        if i < 9:  # Skip the first 9 iterations since we do not have 10 iterations of data yet
             rate_10.append(None)
         else:
             rate_10.append(sum(changes[i-9:i+1]) / 10)

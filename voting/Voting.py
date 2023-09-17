@@ -8,7 +8,6 @@ VOTING_INCENTIVE_THRESHOLD = 0.5
 
 
 # Voting simulation class
-# Candidates: list of candidates with wights, for voters to select the preferred candidate
 class Voting:
     def __init__(self, proposal, network, voting_mechanism):
         self.proposal = proposal
@@ -22,28 +21,31 @@ class Voting:
         abstain = 0
         voters = self.network.nodes
 
+        # List of the voters that have voted
         GINI_VOTERS = []
 
-        # We resset the last preferences of the voters
+        # We reset the last preferences of the voters
         voters = self.reset_voters_preferences(voters)
 
         # Set the last preferences for the benefiting voters
-        # Returns list of the voters that have not voted
+        # Returns list of all voters, decision of the benefiting voters is updated
         voters = VotingDecision.VotingDecision(voters, self.proposal).generate_voting_decision_benefit()
 
         # Set the last preferences for the neutral voters
-        # Returns list of the voters that have not voted
+        # Returns list of all voters, decision of the neutral voters is updated
         voters = VotingDecision.VotingDecision(voters, self.proposal).generate_voting_decision_neutral()
 
         # Set the last preferences for the voters which connections are influenced by the proposal
-        # Returns list of the voters that have not voted
+        # Returns list of all voters, decision of the voters with connections influenced by the proposal is updated
         voters = VotingDecision.VotingDecision(voters, self.proposal).generate_voting_decision_connections()
 
-        # Check if all voters have voted
+        # Check if all voters have voting decision
         if len(voters) != 0:
             Exception("Issue with the voting decision")
 
+        # Define the incentive mechanism
         incentive = Incentive.Incentive(self.network, self.proposal)
+        # Update the probability to vote for each voter if there is an incentive
         incentive.get_probability_vote()
 
         # Each voter votes for a candidate we save the votes in a list
@@ -51,7 +53,6 @@ class Voting:
             # Get the incentive decision of the voter
             # Determine if the voter will vote or abstain
             incentive_decision = self.get_voting_incentive_decision(voter)
-            #print("Incentive decision: ", incentive_decision)
 
             # Consider the case when voter votes
             if incentive_decision != "abstain":
@@ -70,17 +71,27 @@ class Voting:
                 
                 # Get the decision of the voter based on the last preference
                 decision = self.get_decision_from_preference_voter(voter)
+                # Add the votes of a voter to the list of votes to compute the GINI coefficient
                 GINI_VOTERS.append(np.floor(votes_node))
 
+                # Add the votes of the voter to the total votes
                 for vote in range(int(np.floor(votes_node))):
                     total_votes.append(decision)
 
+            # Consider the case when voter abstains
             else:
+                # Increment the number of voters that abstained
                 abstain+=1
+                # Apply penalty if the incentive mechanism is penalty
                 if incentive.incentive_mechanism == "penalty":
-                   incentive.penalty_effect_wealth(voter, np.sum([node.wealth for node in self.network.nodes]))
+                   # If the incentive mechanism is reputation vote, apply penalty based on reputation
+                   if self.voting_mechanism == "reputation_vote":
+                        incentive.penalty_effect_reputation(voter)
+                   else:
+                    # If the incentive mechanism is token-based vote, apply penalty based on the token holdings
+                    incentive.penalty_effect_wealth(voter, np.sum([node.wealth for node in self.network.nodes]))
 
-
+        # Calculate the GINI coefficient
         GINI = self.calculate_GINI(GINI_VOTERS)
         # Get the results of the voting mechanism and the voting decision
         voting_outcome, voting_summary = self.get_results(total_votes)
@@ -88,17 +99,17 @@ class Voting:
         # Display the results
         self.display_results(voting_outcome, voting_summary, voting_rate=voting_rate)
         
+        # Return the voting outcome, GINI coefficient and voting rate
         return voting_outcome, GINI, voting_rate
 
     # Determine the decision of the voter based on the last preference
     def get_decision_from_preference_voter(self, voter):
-
+        # If the last preference is more than 0.5, the voter supports the proposal
+        # If the last preference is less than 0.5, the voter does not support the proposal
         if voter.last_preference > 0.5:
             decision = "Y"
         else:
             decision = "N"
-
-        #print("Voter: ", voter.group, " - ", voter.last_preference, " Decision: ", decision)
 
         return decision
 
@@ -140,26 +151,28 @@ class Voting:
         print(voting_results[1][0] + ": " + str(voting_results[1][1]))
         print("Winner: ", result)
 
+    
+    # Calculate the GINI coefficient
     def calculate_GINI(self, x):
         sorted_x = sorted(x)
         n = len(sorted_x)
         cum_values = np.cumsum(sorted_x)
-        #scale = np.array(range(1, n+1)) / n
         gini = (n + 1 - 2 * np.sum(cum_values) / cum_values[-1]) / n
 
         print("GINI: ", (n + 1 - 2 * np.sum(cum_values) / cum_values[-1]) / n)
 
         return gini
 
+    # Determine if the voter will vote or abstain
+    # If the probability to vote is higher than the threshold, the voter will vote
     def get_voting_incentive_decision(self, voter):
-        #print("Voter: ", voter.group, " - ", voter.probability_vote)
         if voter.probability_vote > VOTING_INCENTIVE_THRESHOLD:
             return "vote"
         else:
             return "abstain"
 
-# candidates list of 2 options
-# each perferences is integer 0 or 1 to indicate if a group supports the proposal
+# Candidates list of 2 options
+# Each perference is integer 0 or 1 to indicate if a group supports the proposal
 class Proposal:
     def __init__(self, candidates, OC_preferences, IP_preferences, PT_preferences, CA_preferences):
         self.candidates = candidates

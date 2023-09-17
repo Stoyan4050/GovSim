@@ -2,20 +2,17 @@ import numpy as np
 from nodes import Node
 import random
 
+# Variables to store the overall satisfaction level and the number of participants
 OVERALL_SATISFACTION = []
 NUMNBER_PARTICIPANTS = []
 
+# Update network after every iteration
 def update_network(network, voting_result, num_proposals, total_token_amount_per_group):
+    # Variable to store the satisfaction level of the group
     SATISFACTION_LEVEL = {"OC": 0, "IP": 0, "PT": 0, "CA": 0}
 
     global OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS
-    """
-    Update the network after voting.
 
-    Parameters:
-    - network (Network): The network object.
-    - voting_result (str): The voting result, either "Y" or "N".
-    """
 
     # We update the preferences of the nodes based on the last voting outcome
     # If outcome is "N" then the preeferences of the nodes are the opposite of the computed one
@@ -27,11 +24,16 @@ def update_network(network, voting_result, num_proposals, total_token_amount_per
     SATISFACTION_LEVEL["PT"] = compute_satisfaction_level_group(network, "PT")
     SATISFACTION_LEVEL["CA"] = compute_satisfaction_level_group(network, "CA")
 
+    # Update the network based on the satisfaction level of the group
     network = add_nodes_to_network_satisfaction(network, num_proposals, SATISFACTION_LEVEL, total_token_amount_per_group)
+    # Remove nodes from the network if they are not satisfied
     network = remove_nodes_network_satisfaction(network)
+    # Update the connections of the network
     network.update_connections()
+    # Remove nodes from the network if they have no connections
     network = remove_nodes_from_network_conn(network)
 
+    # Compute the overall satisfaction level in the network
     overall_satisfaction = 0
     for node in network.nodes:
         if len(node.preferences) >= 10:
@@ -46,6 +48,9 @@ def update_network(network, voting_result, num_proposals, total_token_amount_per
 
     return OVERALL_SATISFACTION, NUMNBER_PARTICIPANTS, SATISFACTION_LEVEL
 
+# Update the preferences of the nodes based on the last voting outcome
+# If the proposal passed with "Y" then leave the preferences as they are
+# If the proposal failed with "N" then the preferences of the nodes are the opposite of the computed one
 def update_preferences_for_voting_decision(network, voting_result):
     if voting_result == "N":
         for node in network.nodes:
@@ -57,19 +62,22 @@ def update_preferences_for_voting_decision(network, voting_result):
 
 # Determine the overall satisfaction level of the group.
 def compute_satisfaction_level_group(network, group):
+    # Get nodes for particular group
     nodes_in_group = [node for node in network.nodes if node.group == group]
     
     M = len(nodes_in_group)
     total_preference = 0
 
+    # Compute the total sum of preferences for the group
     for node in nodes_in_group:
         if len(node.preferences) >= 10:
             total_preference += np.sum(node.preferences[-10:])  # Sum the last 10 votes for the node
 
+    # Compute the average preference for the group
     P_group = total_preference / (10 * M)
 
-    #print("Satisfaction level ", group, ": ", P_group)
     return P_group
+
 
 # We add a new node to the network if the satisfaction level of the group is above 0.6
 def add_nodes_to_network_satisfaction(network, num_proposals, SATISFACTION_LEVEL, total_token_amount_per_group): 
@@ -96,12 +104,8 @@ def add_new_node_network(network, group, total_token_amount_per_group):
     - network (Network): The network object.
     - group (str): The group of the new node.
     """
-    # def add_new_node(self, group, incentive_mechanism, min_wealth_group, max_wealth_group):
-
-    # old way not correct
-    # node_wealth = random_wealth_value(np.min([node.wealth for node in network.nodes if node.group == group]), 
-    #                                   np.max([node.wealth for node in network.nodes if node.group == group]))
-
+    # Generate a random wealth value for the new node based on the Pareto distribution
+    # Similar to the initial distribution of the tokens per nodes
     node_wealth = generate_scaled_pareto_value() * total_token_amount_per_group[group]
 
     # Add a new node to the network
@@ -119,6 +123,7 @@ def remove_nodes_network_satisfaction(network):
     all_nodes = network.nodes
     for node in all_nodes:
         if len(node.preferences) >= 10:
+            # If the average of the last 10 preferences is below 0.4 then remove the node
             if np.mean(node.preferences[-10:]) < 0.4:
                 print("Remove node: ", node.group)
                 network.remove_node(node)
@@ -129,6 +134,7 @@ def remove_nodes_network_satisfaction(network):
 def remove_nodes_from_network_conn(network):
     all_nodes = network.nodes
     for node in all_nodes:
+        # If node does not have connection, remove the node
         if len(node.connections) == 0:
             print("Node removed no connections: ", node.group)
 
@@ -136,19 +142,6 @@ def remove_nodes_from_network_conn(network):
             network.tokens_amount -= node.wealth
    
     return network
-
-def random_wealth_value(min_wealth, max_wealth):
-    """
-    Generate a random float between min_wealth and max_wealth.
-
-    Parameters:
-    - min_wealth (float): Lower bound.
-    - max_wealth (float): Upper bound.
-
-    Returns:
-    - float: A random float between a and b.
-    """
-    return random.uniform(min_wealth, max_wealth)
 
 
 def generate_scaled_pareto_value(alpha=1.16):

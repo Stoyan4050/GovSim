@@ -1,6 +1,8 @@
 import numpy as np
 from voting_incentives import Incentive
 
+# Node class
+# Defines the nodes in the network
 class Node:
     def __init__(self, wealth, group, incentive_mechanism):
         self.wealth = wealth
@@ -10,23 +12,9 @@ class Node:
         self.preferences = []
         self.last_preference = None
         self.probability_vote = 0
+        self.total_pen_rep = 0
     
-    # def get_voting_incentive(self):
-    #     return Incentive.Incentive(self).get_voting_incentive()
-
-    # def update_preferences(self, proposal):
-    #     # Update the preferences of the node based on the proposal
-    #     if proposal[self.group] == 1:
-    #         preference = np.random.normal(0.75, 0.05)
-    #     elif any([conn.preferences[-1] > 0.5 for conn in self.connections]):
-    #         preference = sum([conn.preferences[-1] for conn in self.connections]) / len(self.connections)
-    #     else:
-    #         preference = np.random.normal(0.5, 0.05)
-        
-    #     # Remove the oldest preference and add the new preference
-    #     self.preferences.pop(0)
-    #    self.preferences.append(preference)
-
+    # Compute the fitness between 2 nodes
     def compute_fitness(self, other_node, all_nodes):
         
         R = self.get_fitness_relation_value(other_node)
@@ -44,13 +32,10 @@ class Node:
             corr = np.corrcoef(self.preferences[-10:], other_node.preferences[-10:])[0, 1]
             if corr < 0:
                 corr = 0
-                
-        # print("Node types: ", self.group, other_node.group)
-        # print("R: ", R, "W: ", W, "D: ", D, "corr: ", corr)
-        
+                        
         return 0.5 * R + 0.5 * (corr + W + D) / 3
 
-
+    # Compute the business relation value for the fitness based on node's group
     def get_fitness_relation_value(self, other_node):
         if self.group == "PT":
             if other_node.group == "PT":
