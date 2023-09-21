@@ -9,6 +9,7 @@ pip install -r requirements.txt
 2. Navigate to the directory of the project:
 
 3. Run the code:
+
 python main.py
 
 
